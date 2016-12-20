@@ -1,0 +1,33 @@
+body
+{
+  font-size: 16px;
+  color: black;
+  font-family: courier;
+  background: #eeeeee;
+}
+
+h1,h2,h3
+{
+  text-shadow: 2px 2px lightgrey;
+}
+
+p a
+{
+  font-size: large;
+}
+
+p img
+{
+  float: right;
+  max-width: 40%;
+  height: auto;
+  margin: 10px;
+}
+
+hr
+{
+  clear: both;
+  height: 12px;
+  border: 0;
+  box-shadow: inset 0 12px 12px -12px rgba(0, 0, 0, 0.5);
+}
