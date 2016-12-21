@@ -19,4 +19,6 @@ A retro style scrolling arcade game made solely with FLTK.
 
 Extend FLTK with animated GIF functionality.
 
+![](screenshots/animgif.png)
+
 [GitHub source](https://github.com/wcout/fltk-gif-animation)
