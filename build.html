@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>wcout's GITHUB page</title>
+  <link rel="stylesheet" type="text/css" href="style.css"/>
+</head>
+<body>
+
+<h1>FLTrator Build/Installation notes</h1>
+
+<p>I developed this game on Linux (Ubuntu 14.04 64 bit).</p>
+
+<p>It is written with <strong>FLTK</strong>, and has <strong>no other dependencies</strong>.</p>
+
+<p>To compile it, you first need FLTK 1.3 (I recommend to use at least version 1.3.3)
+or above.</p>
+
+<p>As I have no access to and no knowledge about Apple OSX I can only assume
+that the code should compile and run on this platform (as FLTK works well on OSX).</p>
+
+<p>I have successfully tested and run a Mingw compiled version of the program
+under Windows XP and Windows 7.</p>
+
+<p>Under Linux the program was tested with various distros, also some older ones.</p>
+
+<h1>General</h1>
+
+<p>One main goal at development was to use <em>NO</em> external libraries whatsoever
+(except FLTK of course) to stay simple and clean. So the code should be
+really easy to compile.</p>
+
+<p>As this program consists only of one source file/per executable, you could
+compile it just with <code>fltk-config</code>:</p>
+
+<pre><code>fltk-config --use-images --compile src/fltrator.cxx
+
+fltk-config --use-images --compile src/fltrator-landscape.cxx
+</code></pre>
+
+<p>The excutable can be run from the build folder, no need for an install.</p>
+
+<p>Nevertheless there is a <code>Makefile</code> in order to be more flexible.</p>
+
+<hr />
+
+<h1>Audio</h1>
+
+<p>According to the goal to use no external libraries, the program plays <code>.wav</code>
+files by using the builtin play tool of the OS. This is <code>aplay</code> for Linux
+and <code>play</code> for Apple (actually I don't know for sure).
+Works pretty well - at least on Linux...</p>
+
+<p>If you don't hear sound please make sure, that this program is installed
+on your system and plays sounds from the command line.</p>
+
+<p>Under Windows there is no such tool and one cannot output multiple sounds in
+background easy (I stayed with the old Windows MM-API - PlaySound(), because
+everything else seemed complete overkill). So I made a little executable
+<code>playsound.exe</code> that is called by fltrator.
+It has to be in the path somewhere (or in the same path as fltrator).</p>
+
+<p>It is also possible to specify a play command by command line option (see <code>--help</code>).</p>
+
+<p>Under Linux you can also use your own sound-player, when you stick to the
+outline given in playsound.cxx.</p>
+
+<hr />
+
+<h1>Building under Linux (this should also work for Mac)</h1>
+
+<p>Either fetch FLTK from <a href="http://www.fltk.org/software.php">www.fltk.org</a> and compile it yourself or install the
+FLTK development package of your distribution (if it is at version 1.3 or higher).</p>
+
+<h2>Use FLTK from distribution:</h2>
+
+<p>This is the default.</p>
+
+<p>In a terminal change to the fltrator directory and issue:</p>
+
+<pre><code>./configure
+make
+make install (optional)
+</code></pre>
+
+<h2>Use downloaded FLTK:</h2>
+
+<p>Say you downloaded it to <code>~/fltk-1.3/</code>:</p>
+
+<p>First configure and compile FLTK.</p>
+
+<pre><code>cd ~/fltk-1.3
+</code></pre>
+
+<p>Configure and compile it, usually you only need:</p>
+
+<pre><code>make
+</code></pre>
+
+<p>If that succeeds go to the fltrator directory and</p>
+
+<pre><code>./configure --with-fltk-dir=~/fltk-1.3
+make
+make install (optional)
+</code></pre>
+
+<p><em>NOTE</em>: <code>make install</code> copies to <code>~/bin</code>. Make sure that you have included this
+      path in your search path.</p>
+
+<h2>Running fullscreen</h2>
+
+<p>Running FLTrator in fullscreen on a big monitor is really a great pleasure!
+It also runs faster and more smooth I believe.</p>
+
+<p>So I dug out some instructions how to change resolution under Linux using Xrandr
+and and also for Windows and integrated it everything into the program.</p>
+
+<p>Note for Linux: For fullsceeen to work you must have the <code>libxrandr-dev</code> package
+installed.</p>
+
+<p>[Tested to work under Ubuntu 12.04 and 14.04, Windows 7]</p>
+
+<hr />
+
+<h1>General notes about the Windows version</h1>
+
+<p>As noted already, I am no Windows specialist. However I successfully run some of my
+programs written for Linux crosscompiled with 'mingw' under Windows.</p>
+
+<p>FLTrator normally would like to use a 200Hz timer for scrolling the landscape.
+This is just the right speed for a smooth scrolling by 1 pixel/frame. No problem
+under <strong>ANY</strong> Linux system. But a <strong>BIG</strong> problem for a Windows system, as far as I
+experience.</p>
+
+<p>The problem is twofold: FLTK's timer for Windows are restricted to a maximum rate
+of ~65 fps 'by design'. So it was necessary to implement an own timer handling
+using Windows hires timers and integrate these with FLTK's main loop.</p>
+
+<p>The second problem is, that Windows hires timers seem to be not very reliable
+(but maybe it's just my lack of knowledge, how to set up things right).</p>
+
+<p>So the Windows version by default just uses 100 FPS using Windows hi-res timers.
+That seems to work...</p>
+
+<p>If you have still performance problems with it, I found 40 FPS to be the ideal
+rate in this case. Therefore I have added an option <code>HAVE_SLOW_CPU</code> to compile
+with a 40Hz timer (using FLTK timers). This makes the scrolling a little jumpy,
+but maybe this even adds to the retro feeling...</p>
+
+<p>You can enable the switch in your compile shell with:</p>
+
+<pre><code>export HAVE_SLOW_CPU=1
+</code></pre>
+
+<p>before running</p>
+
+<pre><code> make -e
+</code></pre>
+
+<p><strong>Note</strong>: With FLTrator 1.5 there is a runtime switch to change the frame rate.
+      See section <code>Performance issues</code> below.</p>
+
+<h1>Creating a Windows executable using mingw on Linux</h1>
+
+<p>This requires that you have the mingw development package of your distribution installed.</p>
+
+<h2>Prepare a FLTK version compiled with mingw:</h2>
+
+<p>Download FLTK into some directory say: <code>~/fltk-1.3-mingw/</code>:</p>
+
+<pre><code>cd ~/fltk-1.3-mingw
+
+make clean
+./configure --host=i686-w64-mingw32 --enable-cygwin --enable-localjpeg  --enable-localpng --enable-localzlib
+</code></pre>
+
+<p><em>Note</em>: Use the mingw host you have installed on your machine in the <code>--host=...</code> switch
+        (The above was mine under Ubuntu 14.04).</p>
+
+<p>The compilation may stop (at least it did until recently) somewhere within fluid.
+But this doesn't matter, as the FLTK libraries are built already at this point.</p>
+
+<p>After successful build of FLTK change to <code>mingw</code> subfolder of your fltrator folder.</p>
+
+<pre><code>cd {your-fltrator-folder}
+cd mingw
+</code></pre>
+
+<p>Edit the Makefile to point FLTK_DIR to your previous built FLTK-mingw or use
+the export override and the same commands as above to build the Windows executables.</p>
+
+<p>If that succeeds:</p>
+
+<pre><code>make install
+</code></pre>
+
+<p>will then copy all needed files to the INSTALL_PATH  specified in the Makefile (default: ~/Downloads/fltrator).
+You can copy them from there to your Windows machine.</p>
+
+<h1>Native builds under Windows</h1>
+
+<p>I didn't try it, but if you have a working development suite, I guess it should be very
+easy to build as you need only single file projects.</p>
+
+<hr />
+
+<h1>Performance issues</h1>
+
+<p>On older hardware or on a Windows system FLTrator's default framerate of 200 fps
+may be too high.</p>
+
+<p>With version 1.5 the frame rate can be changed in runtime:</p>
+
+<p>On the <strong>title screen</strong> you see the current frame rate in the bottom/right corner.
+Pressing '-' or '+' will change to the next value down or up.</p>
+
+<p>Experiment with the values, until you get the best mix of performance vs  'jumpyness'.
+Allowed values are 20, 25, 40, 50, 100, 200. I recommend a rate 40+.</p>
+
+<p>Of course lower values will decrease the smoothness of the scrolling.</p>
+
+<p>If you found your best rate, you can put it in the command line:</p>
+
+<pre><code>-Rfps  e.g. -R40
+</code></pre>
+
+<p><strong>Note for Windows</strong>: You will get 100 and 200 FPS only, if you didn't compile with
+the <code>HAVE_SLOW_CPU</code> option.</p>
+
+</body>
+</html>

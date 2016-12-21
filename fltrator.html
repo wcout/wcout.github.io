@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>wcout's GITHUB page</title>
+  <link rel="stylesheet" type="text/css" href="style.css"/>
+</head>
+<body>
+
+<p align="right">21/12/2016</p>
+
+<h1>Welcome to FLTrator - FLTK arcade game!</h1>
+
+<p><img src="screenshots/fltrator_v2.2_anim.gif" alt="" title="" /></p>
+
+<h2>Introduction</h2>
+
+<p><strong>FLTrator</strong> is a <em>VERY</em> retro style game in which you steer a spaceship through a scrolling
+landscape with hostile rockets and other obstacles.</p>
+
+<p>It is loosely inspired by a game called '<a href="https://en.wikipedia.org/wiki/Penetrator_(video_game)">Penetrator</a>', which was an arcade game from 1983(!)
+on the <a href="https://en.wikipedia.org/wiki/ZX_Spectrum">Sinclair ZX Spectrum</a>. (I always found it a nearly perfect made game both from a
+technical and playability point of view, considering it had to fit in only 48k of ram).</p>
+
+<p>That's also the reason for the name: it is written using <strong>FLTK</strong> - the
+<strong>F</strong>ast-<strong>L</strong>ight-<strong>T</strong>oolkit, so <strong>FLT</strong> + Pene<strong>trator</strong> => <strong>FLTrator</strong>.</p>
+
+<p>To be honest, I started out only to make a tiny experiment if something like that
+could possibly be done with nothing else but FLTK <sup>[1]</sup> - and as  the first results were
+positive, I got hooked and tried to make something playable out of it.</p>
+
+<p>But of course it could be endlessly improved and expanded,... which I think will likely
+not happen ever. <sup>[2]</sup></p>
+
+<p>What's become of it now is: <strong>10 different levels</strong> of play - no mission or things like that -
+the goal beeing only to end level 10.</p>
+
+<p>Levels can be edited with a supplied level editor though! So you can create other, perhaps
+more exciting levels, than the ones defined by me.</p>
+
+<hr style="border:dashed 1px;height:3px;">
+
+<p><sup>[1]</sup> Why FLTK? I know there are so many game writing libraries out there for
+      C, C++, Python, Javascript and even HTML5 nowadays - I had a look at some of these -
+      and came back to FLTK for it's simplicity and long term steady API. I like
+      to start a project from scratch and with no dependencies.</p>
+
+<p><sup>[2]</sup> Note: Actually I could not resist to polish up things a little, so now - nearly a year
+      later - I have added background planes, gradient drawing, explosions and title animations.
+      But this was also only for proof of concept ;-). Nothing more to come.</p>
+
+<hr />
+
+<h2>The game</h2>
+
+<p>You control a spaceship with the keyboard that is moving over a right to left scrolling
+terrain. But the terrain is changing fast and there are some enimies in it, that won't
+let you pass so easy...</p>
+
+<p>Touching any part of the landscape with the ship is always deadly. Touching objects mostly.</p>
+
+<p>The first aspect of the game is the landscape. Landscapes have a ground level and
+optionally a "sky" (or ceiling). This offers some ways to make them "interesting" 
+by creating steep hills, tight gaps or tunnels,..</p>
+
+<p>The other part are the objects, that can be put into the landscape:</p>
+
+<h3>Rockets <img src="screenshots/rocket.gif" alt="(image of rocket)" title="" /></h3>
+
+<ul>
+<li>Can be shot at with missiles and bombs.</li>
+<li>Always destroy ship at collision.</li>
+<li>Get more dangerous with each level.</li>
+</ul>
+
+<h3>Radars <img src="screenshots/radar.gif" alt="(image of radar)" title="" /></h3>
+
+<ul>
+<li>Are not particularly dangerous, but are obstacles and score well.</li>
+<li>Can be shot at with missiles (but need 3 hits!) and bombs.</li>
+<li>Always destroy ship at collision.</li>
+<li>Trigger rocket launch if not destroyed early.</li>
+</ul>
+
+<h3>Drops <img src="screenshots/drop.gif" alt="(image of drop)" title="" /></h3>
+
+<ul>
+<li>Are nasty.</li>
+<li>Can be "evaporated" with missiles.</li>
+<li>Only destroy ship when they hit it fully, otherwise do no harm, and are just deflected.</li>
+<li>Get more dangerous with each level.</li>
+</ul>
+
+<h3>Badies <img src="screenshots/bady.gif" alt="(image of bady)" title="" /></h3>
+
+<ul>
+<li>Are also nasty as they block the way.</li>
+<li>Can be attacked with missiles, but it needs up to 5 hits to succeed.</li>
+<li>Are always deadly when touched.</li>
+</ul>
+
+<h3>Phasers <img src="screenshots/phaser.gif" alt="(image of phaser)" title="" /> <img src="screenshots/phaser_active.gif" alt="(image of active phaser)" title="" /></h3>
+
+<ul>
+<li>Emit deadly vertical beams at random intervals (hint: they turn red when fully charged).</li>
+<li>Can be destroyed with missiles and bombs.</li>
+</ul>
+
+<h3>Clouds <img src="screenshots/cloud.gif" alt="(image of cloud)" title="" /></h3>
+
+<ul>
+<li>Do no harm, except that the ship gets invisible when passing through.</li>
+<li>Can not be destroyed.</li>
+</ul>
+
+<p>The combination of landscape and objects makes it possible to create some
+challenging tracks.</p>
+
+<p>And most important of course is the:</p>
+
+<h3>Spaceship <img src="screenshots/ship.gif" alt="(image of ship)" title="" /> <img src="screenshots/shipa.gif" alt="(image of alternate ship)" title="" /></h3>
+
+<ul>
+<li>Can fire missiles horizontally.</li>
+<li>Can drop bombs <img src="screenshots/bomb.gif" alt="Bomb" title="" /> vertically.</li>
+<li>Can lag speed for some time, or speed up, which can be very usefull.</li>
+</ul>
+
+<p>The game is controlled by keyboard only, just like in the old days..</p>
+
+<p>See all options with</p>
+
+<p><code>fltrator --help</code> or find the navigation/control keys in the title menu.</p>
+
+<hr />
+
+<h2>The landscape editor</h2>
+
+<p><img src="screenshots/lse.png" alt="" title="FLTRator landscape editor" /></p>
+
+<p>You can edit any of the supplied landscapes or create new landscapes and
+freely position objects in it.</p>
+
+<p>See all options with</p>
+
+<p><code>fltrator-landscape --help</code> or press <code>F1</code> key for help.</p>
+
+<p>If you have created some interesting new landscapes I would be glad to see them!</p>
+
+<hr />
+
+<h2>Licence</h2>
+
+<p>The game code is licensed under <em>GPL 3</em> or later.</p>
+
+<p>FLTrator uses images from:</p>
+
+<p><a href="http://www.clipartlord.com">Clipartlord</a></p>
+
+<p><a href="http://www.pixabay.com">Pixabay</a></p>
+
+<p>that are Public Domain or are licensed under <code>Creative Commons 3.0</code>.
+The images are modified slightly (colors, sizes, details), but keep their
+licence.</p>
+
+<p>See <code>ATTRIBUTION</code> file for files with Creative Commons licence.</p>
+
+<p>FLTrator also uses sound files (<code>.wav</code>) from:</p>
+
+<p><a href="http://www.soundbible.com">Soundbible</a></p>
+
+<p><a href="http://www.wavsource.com">Wavsource</a></p>
+
+<p><a href="http://www.opengameart.org">OpenGameArt</a></p>
+
+<p>that are licenced under <code>Attribution 3.0 licence</code> or are Public Domain.
+The sounds are modified slightly (duration, format), but keep their licence.</p>
+
+<p>See <code>ATTRIBUTION</code> file for files with Creative Commons licence.</p>
+
+<hr />
+
+<h2>Resume</h2>
+
+<p>To answer the initial question, wheater it's possible to write a game just
+using FLTK: <strong>yes, it's possible</strong>, but probably only if it's such a simple type
+as this one is and if you have already some experience with FLTK's principles.</p>
+
+<p>FLTK has a very uncomplicated, yet powerful event handling and drawing system, a lot
+of useful image handling methods - and it is really <strong>FAST</strong>.</p>
+
+<p>Also most real work had nothing to do with the gameplay (this was finished
+quite early - except the necessary performance tuning), but writing the
+framework "around" the game and designing the levels.</p>
+
+<p><img src="screenshots/pene_first_playable_version.png" alt="Screenshot of first playable developer version 09/03/2015" title="First playable version after one week of development" /></p>
+
+<p><em>To illustrate: the first fully functional developer version (see screenshot) was finished
+within one week and had about 1000 LOC. The final version now has over 8000 LOC and does
+essentially the same, but much more refined.</em></p>
+
+<p>Initially I had much trouble to get the game running decently on Windows mostly
+because of timer and sound woes.</p>
+
+<p>Sound generally is an issue, that probably will want you to use a dedicated library
+soon. I have put some effort into sticking with 'aplay' on Linux and an
+"aplay-emulation" for WIN32, which after all do the job quite well. I even
+managed to play background sound with it.</p>
+
+<p>But in the first place I had much fun writing it and learned a lot during
+this time (probably also, that I'm not of the game writer type :)).</p>
+
+<p>So there it is, it's done - and become quite cute, I think.</p>
+
+<p>Although I won't probably make huge changes to the game, if you have any easy to
+implement ideas for improvement or find bugs, please report them to me.</p>
+
+<p>Have fun with FLTrator!</p>
+
+<p><strong>Curious</strong>: Can you finish <em>all ten</em> levels?</p>
+
+<hr />
+
+<h2>Links</h2>
+
+<p><a href="https://sourceforge.net/projects/fltrator/files/?source=navbar">SourceForge Download</a></p>
+
+<p><a href="https://www.youtube.com/watch?v=q1tK40ZBG7E">YouTube video v2.3 (Level 1)</a></p>
+
+<p><a href="https://www.youtube.com/watch?v=dZa2rYsGHHQ">Older version: YouTube video level 4</a></p>
+
+<p><a href="https://www.youtube.com/watch?v=PoPRpiJ5oAs">Older version: YouTube video level 6</a></p>
+
+<p><a href="http://www.fltk.org/">FLTK</a></p>
+
+<hr />
+
+<p><a href="build.html">Read BUILD instructions</a></p>
+
+</body>
+</html>
