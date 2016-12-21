@@ -27,7 +27,7 @@ echo "<!DOCTYPE html>
 <head>
   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
-  <title>wcout's GITHUB page</title>
+  <title>FLTrator - FLTK arcade game</title>
   <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\"/>
 </head>
 <body>
@@ -48,7 +48,7 @@ echo "<!DOCTYPE html>
 <head>
   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
-  <title>wcout's GITHUB page</title>
+  <title>FLTrator build instructions</title>
   <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\"/>
 </head>
 <body>
@@ -69,7 +69,7 @@ echo "<!DOCTYPE html>
 <head>
   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
-  <title>wcout's GITHUB page</title>
+  <title>FLTK animated GIF display</title>
   <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\"/>
 </head>
 <body>
