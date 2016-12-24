@@ -9,7 +9,7 @@ My [FLTK](http://www.fltk.org/) stuff:
 
 A retro style scrolling arcade game made solely with FLTK.
 
-![](screenshots/fltrator.png)
+![FLTrator in action](screenshots/fltrator.png "FLTrator in action")
 
 [GitHub source](https://github.com/wcout/FLTrator)
 
@@ -19,6 +19,6 @@ A retro style scrolling arcade game made solely with FLTK.
 
 Extend FLTK with animated GIF functionality.
 
-![](screenshots/animgif.png)
+![Screenshot of animated GIF demo running](screenshots/animgif.png "Screenshot of animated GIF demo running")
 
 [GitHub source](https://github.com/wcout/fltk-gif-animation)
