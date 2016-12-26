@@ -127,8 +127,8 @@ Inheritance diagram for Fl_GIF_Image:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a777518acd38e50dec352d025eb70026e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_fl___g_i_f___image.html#a777518acd38e50dec352d025eb70026e">Fl_GIF_Image</a> (const char *filename, bool anim=false)</td></tr>
-<tr class="separator:a777518acd38e50dec352d025eb70026e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb4fe7205d5a0a0a588ddeceb0132e2d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_fl___g_i_f___image.html#aeb4fe7205d5a0a0a588ddeceb0132e2d">Fl_GIF_Image</a> (const char *filename)</td></tr>
+<tr class="separator:aeb4fe7205d5a0a0a588ddeceb0132e2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -142,9 +142,11 @@ Static Public Attributes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr class="memitem:abacaf4c1ca4a6ec34d9de7174016ec37"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="abacaf4c1ca4a6ec34d9de7174016ec37"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>load</b> (const char *filename, bool anim=false)</td></tr>
-<tr class="separator:abacaf4c1ca4a6ec34d9de7174016ec37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc75e0de68220ae0b1f6518bd4f49824"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="class_fl___g_i_f___image.html#acc75e0de68220ae0b1f6518bd4f49824">Fl_GIF_Image</a> (const char *filename, bool anim_)</td></tr>
+<tr class="separator:acc75e0de68220ae0b1f6518bd4f49824"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7c0983e4af171fa4bd4e1cac1c6f1f5"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="af7c0983e4af171fa4bd4e1cac1c6f1f5"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>load</b> (const char *filename)</td></tr>
+<tr class="separator:af7c0983e4af171fa4bd4e1cac1c6f1f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa26f80c51ffb3582006fc0097414c46d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aa26f80c51ffb3582006fc0097414c46d"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>close_gif_file</b> ()</td></tr>
 <tr class="separator:aa26f80c51ffb3582006fc0097414c46d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -154,6 +156,9 @@ void *&#160;</td><td class="memItemRight" valign="bottom"><b>read_next_image</b>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
 Protected Attributes</h2></td></tr>
+<tr class="memitem:ac0480b334f15c0f2a02733872930dddd"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac0480b334f15c0f2a02733872930dddd"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>_anim</b></td></tr>
+<tr class="separator:ac0480b334f15c0f2a02733872930dddd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a88e74cdecd7840ea4660e6d78043ce21"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a88e74cdecd7840ea4660e6d78043ce21"></a>
 void *&#160;</td><td class="memItemRight" valign="bottom"><b>gif_handle</b></td></tr>
 <tr class="separator:a88e74cdecd7840ea4660e6d78043ce21"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -161,7 +166,7 @@ void *&#160;</td><td class="memItemRight" valign="bottom"><b>gif_handle</b></td>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The <a class="el" href="class_fl___g_i_f___image.html">Fl_GIF_Image</a> class supports loading, caching, and drawing of Compuserve GIF<sup>SM</sup> images. The class loads the first image and supports transparency. </p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="a777518acd38e50dec352d025eb70026e"></a>
+<a class="anchor" id="aeb4fe7205d5a0a0a588ddeceb0132e2d"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -169,13 +174,35 @@ void *&#160;</td><td class="memItemRight" valign="bottom"><b>gif_handle</b></td>
           <td class="memname">Fl_GIF_Image::Fl_GIF_Image </td>
           <td>(</td>
           <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>infname</em>, </td>
+          <td class="paramname"><em>infname</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>The constructor loads the named GIF image.</p>
+<p>The destructor frees all memory and server resources that are used by the image.</p>
+<p>Use Fl_Image::fail() to check if <a class="el" href="class_fl___g_i_f___image.html">Fl_GIF_Image</a> failed to load. fail() returns ERR_FILE_ACCESS if the file could not be opened or read, ERR_FORMAT if the GIF format could not be decoded, and ERR_NO_IMAGE if the image could not be loaded for another reason. </p>
+
+</div>
+</div>
+<a class="anchor" id="acc75e0de68220ae0b1f6518bd4f49824"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">Fl_GIF_Image::Fl_GIF_Image </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>filename</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>anim</em> = <code>false</code>&#160;</td>
+          <td class="paramname"><em>anim_</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -183,10 +210,13 @@ void *&#160;</td><td class="memItemRight" valign="bottom"><b>gif_handle</b></td>
           <td></td><td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">protected</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
-<p>The constructor loads the named GIF image.</p>
-<p>The destructor frees all memory and server resources that are used by the image.</p>
-<p>Use Fl_Image::fail() to check if <a class="el" href="class_fl___g_i_f___image.html">Fl_GIF_Image</a> failed to load. fail() returns ERR_FILE_ACCESS if the file could not be opened or read, ERR_FORMAT if the GIF format could not be decoded, and ERR_NO_IMAGE if the image could not be loaded for another reason. </p>
+<p>The protected constructor is used by <a class="el" href="class_fl___anim___g_i_f___image.html">Fl_Anim_GIF_Image()</a>. It's sole purpose is to pass a flag to the load() method, which signals the loading of an animated GIF. This makes load() leave the file descriptor open, in order to be usable for the derived class. </p>
 
 </div>
 </div>
@@ -248,7 +278,7 @@ void *&#160;</td><td class="memItemRight" valign="bottom"><b>gif_handle</b></td>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="class_fl___g_i_f___image.html">Fl_GIF_Image</a></li>
-    <li class="footer">Generated on Sun Dec 25 2016 09:06:37 for Fl_Anim_GIF_Image by
+    <li class="footer">Generated on Mon Dec 26 2016 08:01:24 for Fl_Anim_GIF_Image by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>
