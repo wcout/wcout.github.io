@@ -22,3 +22,13 @@ Extend FLTK with animated GIF functionality.
 ![Screenshot of animated GIF demo running](screenshots/animgif.png "Screenshot of animated GIF demo running")
 
 [GitHub source](https://github.com/wcout/fltk-gif-animation)
+
+---
+
+[Fast FLTK prototyping demo](fast_fltk_proto.html)
+
+Write short FLTK programs with immediate feedback.
+
+![Screenshot of fast FLTK prototyping demo running](screenshots/fast_fltk_proto.png "Screenshot of fast FLTK prototyping demo running")
+
+[GitHub source](https://github.com/wcout/fast-fltk-proto)

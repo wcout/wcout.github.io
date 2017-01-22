@@ -85,3 +85,24 @@ echo "
 cp i.html animgif.html
 rm i.html
 
+echo "<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+  <title>FLTK animated GIF display</title>
+  <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />
+</head>
+<body>
+" >i.html
+
+markdown fast_fltk_proto.md >>i.html
+
+echo "
+</body>
+</html>" >>i.html
+
+cp i.html fast_fltk_proto.html
+rm i.html
+
