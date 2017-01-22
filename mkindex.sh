@@ -35,6 +35,7 @@ echo "<!DOCTYPE html>
 " >i.html
 
 markdown fltrator.md >>i.html
+echo "<p align=\"right\"><a href=\"index.html\">Go to start page</a></p>" >>i.html
 
 echo "
 </body>
@@ -56,6 +57,7 @@ echo "<!DOCTYPE html>
 " >i.html
 
 markdown build.md >>i.html
+echo "<p align=\"right\"><a href=\"index.html\">Go to start page</a></p>" >>i.html
 
 echo "
 </body>
@@ -77,6 +79,7 @@ echo "<!DOCTYPE html>
 " >i.html
 
 markdown animgif.md >>i.html
+echo "<p align=\"right\"><a href=\"index.html\">Go to start page</a></p>" >>i.html
 
 echo "
 </body>
@@ -98,6 +101,7 @@ echo "<!DOCTYPE html>
 " >i.html
 
 markdown fast_fltk_proto.md >>i.html
+echo "<p align=\"right\"><a href=\"index.html\">Go to start page</a></p>" >>i.html
 
 echo "
 </body>
