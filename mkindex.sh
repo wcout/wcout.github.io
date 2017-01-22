@@ -110,3 +110,24 @@ echo "
 cp i.html fast_fltk_proto.html
 rm i.html
 
+echo "<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+  <title>FLTK animated GIF display</title>
+  <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />
+</head>
+<body>
+" >i.html
+
+markdown starfield.md >>i.html
+echo "<p align=\"right\"><a href=\"index.html\">Go to start page</a></p>" >>i.html
+
+echo "
+</body>
+</html>" >>i.html
+
+cp i.html starfield.html
+rm i.html

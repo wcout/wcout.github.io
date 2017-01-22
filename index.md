@@ -32,3 +32,13 @@ Write short FLTK programs with immediate feedback.
 ![Screenshot of fast FLTK prototyping demo running](screenshots/fast_fltk_proto.png "Screenshot of fast FLTK prototyping demo running")
 
 [GitHub source](https://github.com/wcout/fast-fltk-proto)
+
+---
+
+[FLTK starfield simulation demo](starfield.html)
+
+Show off FLTK's performance and simplicity with a nice to watch demo.
+
+![Screenshot of FLTK starfield demo running](screenshots/starfield.png "Screenshot of FLTK starfield demo running")
+
+[GitHub source](https://github.com/wcout/fltk-starfield-simulation)
