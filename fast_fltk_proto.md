@@ -1,6 +1,8 @@
 # FLTK Fast Prototyping Demo
 `v0.1: 2017/01/22`
 
+![Screenshot of fast FLTK prototyping demo running](screenshots/fast_fltk_proto.png "Screenshot of fast FLTK prototyping demo running")
+
 A simple *proof of concept* of an idea how to "rapid prototype"
 a single source `FLTK` application using `FLTK` itself as an IDE.
 
@@ -13,3 +15,5 @@ the edit field and the source line highlighted.
 
 Made compilable for Windows (using mingw) too, but not tested
 (probably will need additional work).
+
+---

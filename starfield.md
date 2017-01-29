@@ -43,6 +43,8 @@ The original source can be found under this link:
 
 ##Description
 
+![Screenshot of FLTK starfield demo running](screenshots/starfield.png "Screenshot of FLTK starfield demo running")
+
 This program simulates parallactic movement through a star field.
 'Stars' can be of any number and can also be images. Also speed and
 colors can be adjusted, which  gives some nice scenaries.
@@ -54,3 +56,5 @@ uses just **7% cpu**! 10000 stars: 29% cpu!
 
 **Tested on Linux only.**
 (But should work on Windows too)
+
+---

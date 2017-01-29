@@ -89,6 +89,8 @@ Issues remaining:
 
 ## Test
 
+![Screenshot of animated GIF demo running](screenshots/animgif.png "Screenshot of animated GIF demo running")
+
 You can test the different solutions with the test programs in each folder.
 For the `internal` approach you must have `FLTK` as source distribution to replace
 the mentioned files. As said before `Solution 1` is not as advanced as `Solution 2`
