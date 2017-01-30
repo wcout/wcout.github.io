@@ -94,7 +94,7 @@ echo "<!DOCTYPE html>
 <head>
   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
-  <title>FLTK animated GIF display</title>
+  <title>FLTK rapid prototyping demo</title>
   <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />
 </head>
 <body>
@@ -116,7 +116,7 @@ echo "<!DOCTYPE html>
 <head>
   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />
   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
-  <title>FLTK animated GIF display</title>
+  <title>FLTK Starfield demo</title>
   <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />
 </head>
 <body>
