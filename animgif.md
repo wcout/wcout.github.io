@@ -123,3 +123,7 @@ Perhaps a generic `Fl_Animation` class (or whatever it may be called)
 would make sense - and _one_ constructor for such a class could be an
 `Fl_Animated_GIF_Image` (which would then not be needed to run the animation,
 but only to supply the data). Or something like that.
+
+[GitHub tarball download](https://github.com/wcout/fltk-gif-animation/archive/master.zip)
+
+---

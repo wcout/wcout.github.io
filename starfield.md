@@ -57,4 +57,6 @@ uses just **7% cpu**! 10000 stars: 29% cpu!
 **Tested on Linux only.**
 (But should work on Windows too)
 
+[GitHub tarball download](https://github.com/wcout/fast-fltk-proto/archive/master.zip)
+
 ---

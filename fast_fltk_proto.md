@@ -16,4 +16,6 @@ the edit field and the source line highlighted.
 Made compilable for Windows (using mingw) too, but not tested
 (probably will need additional work).
 
+[GitHub tarball download](https://github.com/wcout/FLTrator/archive/master.zip)
+
 ---
