@@ -42,3 +42,13 @@ Show off FLTK's performance and simplicity with a nice to watch demo.
 ![Screenshot of FLTK starfield demo running](screenshots/starfield.png "Screenshot of FLTK starfield demo running")
 
 [GitHub source](https://github.com/wcout/fltk-starfield-simulation)
+
+---
+
+[FLTK Sunrise demo](sunrise.html)
+
+Another "nice to watch" FLTK drawing demo...
+
+![Screenshot of FLTK Sunrise demo running with sun above horizon](screenshots/sunrise_day.png "Screenshot of FLTK Sunrise demo running with sun above horizon")
+
+[GitHub source](https://github.com/wcout/fltk-sunrise-demo)
