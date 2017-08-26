@@ -87,6 +87,11 @@ Issues remaining:
 
   Finished *all* tasks. Solution 2 is complete now.
 
+*Update 2017/08/26:*
+
+  Solution 1 (external widget) has been updated to the capabilties of the
+  internal solution.
+
 ## Test
 
 ![Screenshot of animated GIF demo running](screenshots/animgif.png "Screenshot of animated GIF demo running")
