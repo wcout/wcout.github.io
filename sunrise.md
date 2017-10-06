@@ -17,6 +17,13 @@ I added a few "details" to it after having finished the outline.
 Especially nice I find how the clouds worked out, as hords
 of small alpha blocks grouped together in the form of a cloud.
 
+`2017/10/06`
+
+I have added drawing of a moon, that occasionally can eclipse the sun.
+
+![Screenshot of FLTK Sunrise demo running with sun below horizon](screenshots/sunrise_eclipse.png "Screenshot of FLTK Sunrise demo moon eclipsing sun")
+
+
 [GitHub tarball download](https://github.com/wcout/fltk-sunrise-demo/archive/master.zip)
 
 ---
