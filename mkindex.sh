@@ -153,3 +153,13 @@ echo "
 
 cp i.html sunrise.html
 rm i.html
+
+markdown gomoku.md >>i.html
+echo "<p align=\"right\"><a href=\"index.html\">Go to start page</a></p>" >>i.html
+
+echo "
+</body>
+</html>" >>i.html
+
+cp i.html gomoku.html
+rm i.html

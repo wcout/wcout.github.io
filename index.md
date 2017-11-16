@@ -52,3 +52,13 @@ Another "nice to watch" FLTK drawing demo...
 ![Screenshot of FLTK Sunrise demo running with sun above horizon](screenshots/sunrise_day.png "Screenshot of FLTK Sunrise demo running with sun above horizon")
 
 [GitHub source](https://github.com/wcout/fltk-sunrise-demo)
+
+---
+
+[FLTK Gomoku](gomoku.html)
+
+A minimal implementation of the "5 in a row" game using FLTK.
+
+![Screenshot of FLTK Gomoku](screenshots/fltk-gomoku.png "Screenshot of FLTK Gomoku")
+
+[GitHub source](https://github.com/wcout/fltk-gomoku)
