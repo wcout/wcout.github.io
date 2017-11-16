@@ -154,6 +154,18 @@ echo "
 cp i.html sunrise.html
 rm i.html
 
+echo "<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+  <title>FLTK Sunrise demo</title>
+  <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\" />
+</head>
+<body>
+" >i.html
+
 markdown gomoku.md >>i.html
 echo "<p align=\"right\"><a href=\"index.html\">Go to start page</a></p>" >>i.html
 
