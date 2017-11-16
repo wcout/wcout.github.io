@@ -24,3 +24,7 @@ background (tiled) image (if supplied as `bg.gif` in the
 current directory) and pieces drawn from SVG images (needs `FLTK 1.4`!).
 
 For cheating moves can be undone  with the `BackSpace` key.
+
+[GitHub tarball download](https://github.com/wcout/fltk-gomoku/archive/master.zip)
+
+---
