@@ -11,7 +11,7 @@
 
 <h1>FLTK Fast Prototyping Demo</h1>
 
-<p><code>v0.1: 2017/01/22</code></p>
+<p><code>v0.2: 2018/01/20</code></p>
 
 <p><img src="screenshots/fast_fltk_proto_v2.png" alt="Screenshot of fast FLTK prototyping demo showing warning" title="Screenshot of fast FLTK prototyping demo showing warning" /></p>
 
@@ -22,6 +22,38 @@ a single source <code>FLTK</code> application using <code>FLTK</code> itself as 
 which is <strong>live compiled and executed</strong> during typing. In case of
 compiler errors, the first error is displayed in a box below
 the edit field and the source line highlighted.</p>
+
+<p>Also a style check command is executed (default: <code>cppcheck</code>), after
+compilation succeeded and the first style error is displayed in
+the box below.</p>
+
+<p><strong>Features:</strong></p>
+
+<ul>
+<li><code>FLTK</code> keywords are syntax highlighted additionaly to cxx keywords.</li>
+<li>Text size can be changed rapidly with <code>Ctrl</code>-mousewheel up/down</li>
+<li>Right mouse popup with clipboard options</li>
+<li>Save current code as template that is used to start a new 'project'</li>
+<li>Layout (size, position, colors, font size,..) is saved on exit</li>
+</ul>
+
+<p><strong>The envisioned use cases are:</strong></p>
+
+<ul>
+<li><code>FLTK</code> novice makes first steps with <code>FLTK</code> writing some simple test programs</li>
+<li><code>FLTK</code> advanced user wants to rapidly code the basic outline of a new idea</li>
+<li>Tutor live edits <code>FLTK</code> program and has immediate feedback for audience</li>
+</ul>
+
+<p><strong>The envisioned work procedure is:</strong></p>
+
+<ul>
+<li>Have <code>FLTK</code> installed systemwide or have a global <code>fltk_fast_proto.prefs</code> config file
+where the location of <code>fltk-config</code> is specified</li>
+<li>Start up a terminal</li>
+<li>Create some working directory and change into it</li>
+<li>Fire up <code>fast_proto</code> and live create your <code>FLTK</code> program</li>
+</ul>
 
 <p><strong>Tested on Linux only.</strong></p>
 
