@@ -1,0 +1,71 @@
+*! FIX sky/outline right side on end position (ground is ok?)
+
+* ship as object
+- initial ship pos
+* limit ship movement right/left
+! ship collision ground/sky
+! ship collision rocket/drop/..
+o ship crash (explosion)
+* ship accel stripes
+
+* same sound played again; spiel dzt. erst nach beenden wieder (new nötig?)
+
+* object start (random)
+* improve bomb movement
+* improve drop/rocket movement
+
+- background plane
+* background objects (planets)
+
+- own timer for objects
+* object update method
+
+* remove bomb after hit radar
+- radar first hit
+
+- einstellen border dicke / keine border
+- verlauffarbe einstellen
+
+* Fix ship crash on top without sky!!
+
+! bomb repeat control
+
+* Kontrastfarbe missile / background
+
+* scrollin/out zone
+
+- game screen score display
+
+* other levels
+* switch to next level
+- titel screen
+- game end
+
+- score screen
+
+- ship movein/moveout anim
+
+o object explosions
+
+* badies/clouds/phaser
+
+* color change?
+
+- config
+
+o game finished
+
+o other bg music
+
+- save score
+
+* level names (whirl in?)
+
+* sternenhintergrund
+
+- Fixme: plötzlich kein missile (object) sound mehr und relaod funkt. nicht
+  ==> speicherproblem??
+
+- explosion animation (particles)
+
+o splash-screen?
