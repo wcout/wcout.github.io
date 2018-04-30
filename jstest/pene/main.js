@@ -43,6 +43,8 @@ const O_DECO = 1024;
 const O_EXPLOSION = 2048;
 const O_PHASER_BEAM = 4096;
 
+const LIVES = 5;
+
 //var _TEST_ = true;
 
 var Screen;
@@ -1155,7 +1157,7 @@ async function resetLevel( wait_ = true, splash_ = false )
 	repeated_right = -5;
 	speed_right = 0;
 	objects = [];
-	var splash = splash_ || level > 10 || failed_count > 5;
+	var splash = splash_ || level > 10 || failed_count >= LIVES;
 	if ( level > 10 )
 	{
 		level = 1;
@@ -1337,6 +1339,17 @@ function update()
 	fl_color( 'white' );
 	fl_draw( 'Level ' + level, 10, 570 );
 
+	// draw lives
+	for ( var i = 0; i < LIVES - failed_count; i++ )
+	{
+		var w = ship.width / 4;
+		var h = ship.height / 4;
+		var x = 10 + ( w + 5 ) * i;
+		var y = 580;
+		ctx.drawImage( ship, 0, 0, ship.width, ship.height,
+                     x , y , w, h );
+	}
+
 	if ( LS_param.name && ox < Screen.clientWidth / 2 )
 	{
 		fl_font( 'Arial bold italic', Math.min( Math.floor( ox / 3 ), 40 ) );
@@ -1498,7 +1511,7 @@ async function splash_screen()
 		var x = ( Screen.clientWidth - w ) / 2;
 		var y = ( Screen.clientHeight - h ) / 2;
 		ctx.drawImage( ship, 0, 0, ship.width, ship.height,
-                     x , y + 40 , ship.width * scale, ship.height * scale );
+                     x , y + 40 , w, h );
 		await sleep( 10 );
 		scale += 0.01;
 		if ( scale > 6 )
