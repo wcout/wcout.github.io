@@ -99,6 +99,7 @@ var ground_grad;
 var paused = false;
 var collision = false;
 var completed = false;
+var failed_count = 0;
 var repeated_right = -5;
 var speed_right = 0;
 
@@ -351,11 +352,13 @@ class ObjInfo
 			for ( var i = 0; i < this.image_width * this.image_height / 100; i++ )
 			{
 				fl_color( Math.random() > 0.5 ? 'red' : 'yellow' );
-				var rx = Math.floor( Math.random() * this.image_width );
-				var ry = Math.floor( Math.random() * this.image_height );
-				var rw = Math.floor( Math.random() * this.image_width / 2 );
-				var rh = Math.floor( Math.random() * this.image_height / 2 );
-				fl_rectf( x + rx, this.y + ry, rw, rh );
+				var fw = this.image_width / 2;
+				var fh = this.image_height / 2;
+				var rx = Math.random() * this.image_width;
+				var ry = Math.random() * this.image_height;
+				var rw = Math.random() * fw;
+				var rh = Math.random() * fh;
+				fl_rectf( x + rx - fw / 2, this.y + ry - fh / 2, rw, rh );
 			}
 		}
 	}
@@ -1130,6 +1133,10 @@ async function resetLevel( wait_ = true, splash_ = false )
 		{
 			playSound( win_sound );
 		}
+		else
+		{
+			failed_count++;
+		}
 		await sleep( 3000 + 17000 * ( done == true ) );
 	}
 	collision = false;
@@ -1142,12 +1149,13 @@ async function resetLevel( wait_ = true, splash_ = false )
 	if ( was_completed )
 	{
 		level++;
+		failed_count = 0;
 		music.stop();
 	}
 	repeated_right = -5;
 	speed_right = 0;
 	objects = [];
-	var splash = splash_ || level > 10;
+	var splash = splash_ || level > 10 || failed_count > 5;
 	if ( level > 10 )
 	{
 		level = 1;
@@ -1433,6 +1441,7 @@ function getTransparencyMask( img )
 async function splash_screen()
 {
 	window.cancelAnimationFrame( requestId );
+	failed_count = 0;
 	if ( music )
 	{
 		music.stop();
@@ -1477,6 +1486,12 @@ async function splash_screen()
 		fl_draw( text, x + 2, 572 );
 		fl_color( 'yellow' );
 		fl_draw( text, x, 570 );
+
+		fl_font( 'Arial bold italic', 30 );
+		fl_color( 'gray' );
+		fl_draw( 'Level ' + level, 11, 571 );
+		fl_color( 'white' );
+		fl_draw( 'Level ' + level, 10, 570 );
 
 		var w = ship.width * scale;
 		var h = ship.height * scale;

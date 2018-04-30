@@ -1,5 +1,5 @@
 var Level_5_colors = { sky:'#5b5691', ground:'#00ff00', background:'#96f0ff', missile:'rgba(255,0,0,' };
-var Level_5_param = { name:"It's a jumgle out there", deco:'./deco/uranus.png' };
+var Level_5_param = { name:"It's a jungle out there", deco:'./deco/uranus.png' };
 var Level_5 = [
 {sky:97, ground:188, obj:0},
 {sky:97, ground:193, obj:0},
