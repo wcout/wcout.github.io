@@ -599,6 +599,7 @@ class Ship extends ObjInfo
 		if ( this.accel || this.decel )
 		{
 			fl_color( this.accel ? 'gray' : 'darkmagenta' );
+			fl_line_style( 0, 0 );
 			ctx.setLineDash( [4, 2] );
 			var y0 = this.y + 20;
 			var l = 20;
@@ -1117,6 +1118,7 @@ function drawLandscape()
 	{
 		ctx.stroke();
 	}
+	fl_line_style( 0, 0 );
 }
 
 async function resetLevel( wait_ = true, splash_ = false )
