@@ -938,8 +938,10 @@ function onEvent( e )
 		if ( e.type == "touchstart" )
 		{
 			var rect = e.target.getBoundingClientRect();
-			mx = e.touches[0].clientX - rect.left;
-			my = e.touches[0].clientY - rect.top;
+//			mx = e.touches[0].clientX - rect.left;
+//			my = e.touches[0].clientY - rect.top;
+			mx = e.touches[0].pageX - rect.left;
+			my = e.touches[0].pageY - rect.top;
 			e.preventDefault();
 		}
 		else
