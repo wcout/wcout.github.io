@@ -931,7 +931,7 @@ function onEvent( e )
 		onKeyUp( e.keyCode );
 		e.preventDefault();
 	}
-	if ( e.type == "mousedown" )
+	if ( e.type == "mousedown" || e.type == "touchstart" )
 	{
 		e.preventDefault();
 		var cx = spaceship.x + spaceship.image_width / 2 - ox;
@@ -982,7 +982,7 @@ function onEvent( e )
 			}
 		}
 	}
-	if ( e.type == "mouseup" )
+	if ( e.type == "mouseup" || e.type == "touchend" )
 	{
 		e.preventDefault();
 		if ( keysDown[KEY_FIRE] )
@@ -1616,6 +1616,8 @@ function onResourcesLoaded()
 	document.addEventListener( "keyup", onEvent );
 	Screen.addEventListener( "mousedown", onEvent );
 	Screen.addEventListener( "mouseup", onEvent );
+	Screen.addEventListener( "touchstart", onEvent );
+	Screen.addEventListener( "touchend", onEvent );
 
 	splash_screen();
 }
