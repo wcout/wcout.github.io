@@ -933,6 +933,7 @@ function onEvent( e )
 	}
 	if ( e.type == "mousedown" )
 	{
+		e.preventDefault();
 		var cx = spaceship.x + spaceship.image_width / 2 - ox;
 		var cy = spaceship.y + spaceship.image_height / 2;
 		var mx = e.offsetX;
@@ -983,6 +984,7 @@ function onEvent( e )
 	}
 	if ( e.type == "mouseup" )
 	{
+		e.preventDefault();
 		if ( keysDown[KEY_FIRE] )
 		{
 			onKeyUp(KEY_FIRE);
@@ -1612,9 +1614,8 @@ function onResourcesLoaded()
 
 	document.addEventListener( "keydown", onEvent );
 	document.addEventListener( "keyup", onEvent );
-	document.addEventListener( "keyup", onEvent );
-	document.addEventListener( "mousedown", onEvent );
-	document.addEventListener( "mouseup", onEvent );
+	Screen.addEventListener( "mousedown", onEvent );
+	Screen.addEventListener( "mouseup", onEvent );
 
 	splash_screen();
 }
