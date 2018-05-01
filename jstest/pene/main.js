@@ -931,9 +931,8 @@ function onEvent( e )
 		onKeyUp( e.keyCode );
 		e.preventDefault();
 	}
-	if ( e.type == "mousedown" || e.type == "touchstart" )
+	if ( e.type == "mousedown" )
 	{
-		e.preventDefault();
 		var cx = spaceship.x + spaceship.image_width / 2 - ox;
 		var cy = spaceship.y + spaceship.image_height / 2;
 		var mx = e.offsetX;
@@ -982,9 +981,8 @@ function onEvent( e )
 			}
 		}
 	}
-	if ( e.type == "mouseup" || e.type == "touchend" )
+	if ( e.type == "mouseup" )
 	{
-		e.preventDefault();
 		if ( keysDown[KEY_FIRE] )
 		{
 			onKeyUp(KEY_FIRE);
@@ -1616,8 +1614,6 @@ function onResourcesLoaded()
 	document.addEventListener( "keyup", onEvent );
 	Screen.addEventListener( "mousedown", onEvent );
 	Screen.addEventListener( "mouseup", onEvent );
-	Screen.addEventListener( "touchstart", onEvent );
-	Screen.addEventListener( "touchend", onEvent );
 
 	splash_screen();
 }
