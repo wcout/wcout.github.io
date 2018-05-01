@@ -937,7 +937,7 @@ function onEvent( e )
 		var my;
 		if ( e.type == "touchstart" )
 		{
-			var rect = e.getBoundingClientRect();
+			var rect = e.target.getBoundingClientRect();
 			mx = e.touches[0].clientX - rect.left;
 			mx = e.touches[0].clientY - rect.top;
 			e.preventDefault();
