@@ -29,6 +29,8 @@
        goal has been reached, I don't feel motivated enough to port all aspects.
 
 */
+
+// object id's
 const O_ROCKET = 1;
 const O_DROP = 2;
 const O_BADY = 4;
@@ -43,7 +45,20 @@ const O_DECO = 1024;
 const O_EXPLOSION = 2048;
 const O_PHASER_BEAM = 4096;
 
+// lives/level
 const LIVES = 5;
+
+// keycodes for game
+const KEY_PAUSE = 57;   // '9'
+const KEY_RIGHT = 39;   // 'p'
+const KEY_ARROW_RIGHT = 80;
+const KEY_LEFT = 37;    // 'o'
+const KEY_ARROW_LEFT = 79;
+const KEY_UP = 38;      // 'q'
+const KEY_ARROW_UP = 81;
+const KEY_DOWN = 40;    // 'a'
+const KEY_ARROW_DOWN = 65;
+const KEY_FIRE = 32;    // space
 
 //var _TEST_ = true;
 
@@ -261,7 +276,7 @@ function setLevel( l )
 	level = l;
 	paused = false;
 	completed = false;
-	keysDown[32] = true;
+	keysDown[KEY_FIRE] = true; // exit splash (if currently in)
 	resetLevel( false );
 }
 
@@ -848,7 +863,7 @@ function fireMissile()
 
 function onKeyDown( k )
 {
-	if ( k == 57 ) // '9'
+	if ( k == KEY_PAUSE )
 	{
 		if ( paused && ( collision || completed ) )
 		{
@@ -864,13 +879,13 @@ function onKeyDown( k )
 			music.stop();
 		}
 	}
-	if ( k == 39 || k == 80 )
+	if ( k == KEY_RIGHT || k == KEY_ARROW_RIGHT )
 	{
 		repeated_right = -5;
 		if ( paused && !collision && !completed )
 		{
 			// resume game
-			onKeyDown( 57 );
+			onKeyDown( KEY_PAUSE );
 		}
 	}
 }
@@ -881,7 +896,7 @@ function onKeyUp( k )
 	{
 		return;
 	}
-	if ( k == 32 )
+	if ( k == KEY_FIRE && frame )
 	{
 		if ( frame - last_bomb_frame > 30 ) // simple limit of rate
 		{
@@ -889,7 +904,7 @@ function onKeyUp( k )
 			dropBomb();
 		}
 	}
-	if ( k == 39 || k == 80 )
+	if ( ( k == KEY_RIGHT || k == KEY_ARROW_RIGHT ) && frame )
 	{
 		speed_right = 0;
 		if ( repeated_right <= 0 )
@@ -915,6 +930,68 @@ function onEvent( e )
 		keysDown[e.keyCode] = false;
 		onKeyUp( e.keyCode );
 		e.preventDefault();
+	}
+	if ( e.type == "mousedown" )
+	{
+		var cx = spaceship.x + spaceship.image_width / 2 - ox;
+		var cy = spaceship.y + spaceship.image_height / 2;
+		var mx = e.offsetX;
+		var my = e.offsetY;
+		if ( my > 400 && mx < 200 )
+		{
+			// bottom left zone = drop bomb
+			keysDown[KEY_FIRE] = true;
+			onKeyDown(KEY_FIRE);
+			return;
+		}
+		if ( my > 400 && mx > 600 && frame )
+		{
+			// bottom right zone = fire missile
+			fireMissile();
+			return;
+		}
+		if ( Math.abs( mx - cx ) > 20 )
+		{
+			if ( mx > cx )
+			{
+				keysDown[KEY_LEFT] = false;
+				keysDown[KEY_RIGHT] = true;
+				onKeyDown(KEY_RIGHT);
+			}
+			else
+			{
+				keysDown[KEY_RIGHT] = false;
+				keysDown[KEY_LEFT] = true;
+				onKeyDown(KEY_LEFT);
+			}
+		}
+		if ( Math.abs( my - cy ) > 20 )
+		{
+			if ( my > cy )
+			{
+				keysDown[KEY_UP] = false;
+				keysDown[KEY_DOWN] = true;
+				onKeyDown(KEY_DOWN);
+			}
+			else
+			{
+				keysDown[KEY_DOWN] = false;
+				keysDown[KEY_UP] = true;
+				onKeyDown(KEY_UP);
+			}
+		}
+	}
+	if ( e.type == "mouseup" )
+	{
+		if ( keysDown[KEY_FIRE] )
+		{
+			onKeyUp(KEY_FIRE);
+		}
+		keysDown[KEY_FIRE] = false;
+		keysDown[KEY_RIGHT] = false;
+		keysDown[KEY_LEFT] = false;
+		keysDown[KEY_UP] = false;
+		keysDown[KEY_DOWN] = false;
 	}
 }
 
@@ -1129,7 +1206,7 @@ async function resetLevel( wait_ = true, splash_ = false )
 	}
 	var was_completed = completed;
 	var changeMusic = completed || !wait_;
-	onKeyDown( 57 ); // trigger pause
+	onKeyDown( KEY_PAUSE ); // trigger pause
 	if ( wait_ )
 	{
 		var done = completed && level == 10;
@@ -1145,7 +1222,7 @@ async function resetLevel( wait_ = true, splash_ = false )
 	}
 	collision = false;
 	completed = false;
-	onKeyDown( 57 );	// end pause
+	onKeyDown( KEY_PAUSE );	// end pause
 
 	ox = 0;
 	frame = 0;
@@ -1368,7 +1445,7 @@ function update()
 	if ( !collision && !paused )
 	{
 		var k = keysDown;
-		if ( k[39] || k[80] )
+		if ( k[KEY_RIGHT] || k[KEY_ARROW_RIGHT] )
 		{
 			repeated_right++;
 			if ( repeated_right > 0 )
@@ -1381,7 +1458,7 @@ function update()
 				}
 			}
 		}
-		if ( k[37] || k[79])
+		if ( k[KEY_LEFT] || k[KEY_ARROW_LEFT])
 		{
 			if ( spaceship.x >= ox - spaceship.image_width / 2 )
 			{
@@ -1389,14 +1466,14 @@ function update()
 				spaceship.decel = true;
 			}
 		}
-		if ( k[40] || k[65] )
+		if ( k[KEY_DOWN] || k[KEY_ARROW_DOWN] )
 		{
 			if ( spaceship.y + spaceship.image_height < Screen.clientHeight )
 			{
 				spaceship.y += dx;
 			}
 		}
-		if ( k[38] || k[81] )
+		if ( k[KEY_UP] || k[KEY_ARROW_UP] )
 		{
 			if ( spaceship.y >= 0 )
 			{
@@ -1466,9 +1543,9 @@ async function splash_screen()
 	music.play();
 
 	var scale = 2;
-	keysDown[32] = false;
+	keysDown[KEY_FIRE] = false;
 	var gradient = new Gradient( 'skyblue', 'saddlebrown' );
-	while ( !keysDown[32] )
+	while ( !keysDown[KEY_FIRE] )
 	{
 //		fl_color( 'dimgray' );
 		ctx.fillStyle = gradient.grad;
@@ -1522,6 +1599,7 @@ async function splash_screen()
 		}
 	}
 	music.stop();
+	playSound( drop_sound );
 	requestId = window.requestAnimationFrame( update );
 	resetLevel( false );
 }
@@ -1534,6 +1612,9 @@ function onResourcesLoaded()
 
 	document.addEventListener( "keydown", onEvent );
 	document.addEventListener( "keyup", onEvent );
+	document.addEventListener( "keyup", onEvent );
+	document.addEventListener( "mousedown", onEvent );
+	document.addEventListener( "mouseup", onEvent );
 
 	splash_screen();
 }
