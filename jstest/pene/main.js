@@ -939,7 +939,7 @@ function onEvent( e )
 		{
 			var rect = e.target.getBoundingClientRect();
 			mx = e.touches[0].clientX - rect.left;
-			mx = e.touches[0].clientY - rect.top;
+			my = e.touches[0].clientY - rect.top;
 			e.preventDefault();
 		}
 		else
