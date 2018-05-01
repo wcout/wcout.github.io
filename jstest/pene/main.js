@@ -59,6 +59,7 @@ const KEY_ARROW_UP = 81;
 const KEY_DOWN = 40;    // 'a'
 const KEY_ARROW_DOWN = 65;
 const KEY_FIRE = 32;    // space
+const KEY_SOUND = 83;   // 's'
 
 //var _TEST_ = true;
 
@@ -68,6 +69,7 @@ var fps = 60; // default of requestAnimationFrame()
 var mspf = 1000 / fps;
 
 // images
+var mute;
 var ship;
 var rocket;
 var rocket_launched;
@@ -88,6 +90,7 @@ var keysDown = [];
 var level = 1;
 var dx = Math.floor( 200 / fps ); // desired scroll speed is 200 px/sec.
 var objects = [];
+var sounds = true;
 
 // sounds
 var drop_sound;
@@ -634,8 +637,11 @@ class Ship extends ObjInfo
 
 function playSound( sound )
 {
-	var s = sound.cloneNode();
-	s.play();
+	if ( sounds )
+	{
+		var s = sound.cloneNode();
+		s.play();
+	}
 }
 
 function bgsound( src )
@@ -896,6 +902,11 @@ function onKeyUp( k )
 	{
 		return;
 	}
+	if ( k == KEY_SOUND )
+	{
+		sounds = !sounds;
+		saveValue( 'sounds', sounds );
+	}
 	if ( k == KEY_FIRE && frame )
 	{
 		if ( frame - last_bomb_frame > 30 ) // simple limit of rate
@@ -938,8 +949,6 @@ function onEvent( e )
 		if ( e.type == "touchstart" )
 		{
 			var rect = e.target.getBoundingClientRect();
-//			mx = e.touches[0].clientX - rect.left;
-//			my = e.touches[0].clientY - rect.top;
 			mx = e.touches[0].pageX - rect.left;
 			my = e.touches[0].pageY - rect.top;
 			e.preventDefault();
@@ -1148,6 +1157,24 @@ function updateObjects()
 		{
 			o.update();
 		}
+	}
+}
+
+function drawBgPlane()
+{
+	if ( max_sky >= 0 )
+		return;
+
+	// test for "parallax scrolling" background plane
+	var xoff = ox / 3;	// scrollfactor 1/3
+	fl_color( LS_colors.plane );
+	for ( var i = 0; i < Screen.clientWidth; i++ )
+	{
+		if ( ox + i >= LS.length ) break;
+		var g2 = Screen.clientHeight - LS[ ox + i].ground;
+		var g1 = Screen.clientHeight - LS[ xoff + i + 3 * Screen.clientWidth ].ground * 2 / 3;
+		if ( g2 > g1 )
+			fl_yxline( i, g1 , g2 );
 	}
 }
 
@@ -1423,6 +1450,7 @@ function update()
 
 	drawObjects( true ); // deco only
 
+	drawBgPlane();
 	drawLandscape();
 	drawObjects();
 
@@ -1431,6 +1459,15 @@ function update()
 	fl_draw( 'Level ' + level, 11, 571 );
 	fl_color( 'white' );
 	fl_draw( 'Level ' + level, 10, 570 );
+
+	if ( !sounds )
+	{
+		var text = '\u{1f507}'; // unicode character 'speaker with cancellation stroke'
+		var x = Screen.clientWidth - 40;
+		var y = 560;
+//		ctx.fillText( text, x, y );
+		ctx.drawImage( mute, x, y, 30, 30 );
+	}
 
 	// draw lives
 	for ( var i = 0; i < LIVES - failed_count; i++ )
@@ -1636,6 +1673,8 @@ function onResourcesLoaded()
 
 function load_images()
 {
+	mute = new Image();
+	mute.src = 'mute.svg';
 	ship = new Image();
 	ship.src = 'ship.gif';
 	rocket = new Image();
@@ -1702,6 +1741,11 @@ function main()
 	if ( stored_level )
 	{
 		level = stored_level;
+	}
+	var stored_sounds = loadValue( 'sounds' );
+	if ( stored_sounds )
+	{
+		sounds = stored_sounds;
 	}
 }
 
