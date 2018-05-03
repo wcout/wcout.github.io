@@ -29,6 +29,7 @@
        goal has been reached, I don't feel motivated enough to port all aspects.
 
 */
+"use strict";
 
 // object id's
 const O_ROCKET = 1;
@@ -67,6 +68,9 @@ var Screen;
 var ctx;
 var fps = 60; // default of requestAnimationFrame()
 var mspf = 1000 / fps;
+var LS = [];
+var LS_colors = [];
+var LS_param = [];
 
 // images
 var mute;
@@ -201,6 +205,14 @@ function fl_font( family, size )
 	}
 	f += size + 'px ' +  s[0];
 	ctx.font = f;
+}
+
+function drawShadowText( text, x, y, color_text, color_shadow, offset = 2 )
+{
+	fl_color( color_shadow );
+	fl_draw( text, x + offset, y + offset );
+	fl_color( color_text );
+	fl_draw( text, x, y );
 }
 
 function fillTextMultiLine( text, x, y )
@@ -714,7 +726,7 @@ function finishedMessage()
 	fl_draw( "You are a REAL HERO!", 180, 500 );
 }
 
-function create_landscape()
+function createLandscape()
 {
 	LS = eval( "Level_" + level ); // assign from variable 'Level_1'
 	LS_colors = eval( "Level_" + level + "_colors" );
@@ -765,7 +777,7 @@ function create_landscape()
 		}
 	}
 
-	var clouds =[];
+	var clouds = [];
 	for ( var i = 0; i < LS.length; i++ )
 	{
 		// calc. max sky/ground values
@@ -830,7 +842,11 @@ function create_landscape()
 			console.log( "Unknown object type %d", o );
 		}
 	}
-	spaceship = new Ship( 20, Screen.clientHeight / 2 - ship.height / 2, ship );
+	// calc. initial ship position (centered between sky/ground)
+	var x = 20;
+	var cx = x + ship.width / 2;
+	var y = LS[cx].sky + ( Screen.clientHeight - LS[cx].ground - LS[cx].sky - ship.height ) / 2;
+	spaceship = new Ship( x, y, ship );
 	objects.splice( 0, 0, spaceship );
 
 	// move cloud objects at end of list
@@ -869,7 +885,7 @@ function fireMissile()
 
 function onKeyDown( k )
 {
-	if ( k == KEY_PAUSE )
+	if ( k == KEY_PAUSE && frame )
 	{
 		if ( paused && ( collision || completed ) )
 		{
@@ -1039,15 +1055,31 @@ function drawObjects( drawDeco = false )
 				o.x++;
 			}
 		}
-		else
+	}
+}
+
+function collisionWithLandscape()
+{
+	for ( var y = 0; y < spaceship.image_height; y++ )
+	{
+		for ( var x = 0; x < spaceship.image_width; x++ )
 		{
-			if ( o.type == O_MISSILE )
+			if ( !shipTPM[ y * spaceship.image_width + x ] )
 			{
-				objects.splice( i, 1 );
-				i--;
+				var g = Screen.clientHeight - LS[ spaceship.x + x].ground;
+				if ( spaceship.y + y > g )
+				{
+					return true;
+				}
+				var s = LS[ spaceship.x + x].sky;
+				if ( spaceship.y + y < s )
+				{
+					return true;
+				}
 			}
 		}
 	}
+	return false;
 }
 
 function updateObjects()
@@ -1068,18 +1100,22 @@ function updateObjects()
 		}
 		if ( o.type == O_SHIP )
 		{
+			// check for collision with landscape
 			for ( var x = 0; x < o.image_width; x++ )
 			{
 				if ( ( o.y + o.image_height >= Screen.clientHeight - LS[o.x + x].ground ) ||
 				  ( LS[o.x + x].sky >= 0 && o.y < LS[o.x + x].sky ) )
 				{
-					if ( typeof( _TEST_ ) == "undefined" )
+					if ( collisionWithLandscape() )
 					{
-						playSound( x_ship_sound );
-						collision = true;
-						o.exploded = true;
-						resetLevel();
-						return;
+						if ( typeof( _TEST_ ) == "undefined" )
+						{
+							playSound( x_ship_sound );
+							collision = true;
+							o.exploded = true;
+							resetLevel();
+							return;
+						}
 					}
 				}
 			}
@@ -1121,20 +1157,13 @@ function updateObjects()
 				i--;
 			}
 		}
-		else if ( o.type == O_RADAR )
-		{
-			o.update();
-		}
-		else if ( o.type == O_BADY )
-		{
-			o.update();
-		}
 		else if ( o.type == O_MISSILE )
 		{
 			o.update();
 			if ( ( Screen.clientHeight - LS[cx].ground < o.y ) ||
 			     ( o.y < LS[cx].sky ) ||
-			       o.moved_stretch() > Screen.clientWidth / 2 )
+			       o.moved_stretch() > Screen.clientWidth / 2 ||
+			       o.x + o.image_width * o.scale < ox || o.x >= ox + Screen.clientWidth )
 			{
 				objects.splice( i, 1 );
 				i--;
@@ -1149,12 +1178,9 @@ function updateObjects()
 				i--;
 			}
 		}
-		else if ( o.type == O_CLOUD )
+		else
 		{
-			o.update();
-		}
-		else if ( o.type == O_PHASER )
-		{
+			// O_RADAR, O_BADY, O_CLOUD, O_PHASER
 			o.update();
 		}
 	}
@@ -1174,7 +1200,9 @@ function drawBgPlane()
 		var g2 = Screen.clientHeight - LS[ ox + i].ground;
 		var g1 = Screen.clientHeight - LS[ xoff + i + 3 * Screen.clientWidth ].ground * 2 / 3;
 		if ( g2 > g1 )
+		{
 			fl_yxline( i, g1 , g2 );
+		}
 	}
 }
 
@@ -1283,10 +1311,10 @@ async function resetLevel( wait_ = true, splash_ = false )
 		level = 1;
 	}
 	saveValue( 'level', level );
-	create_landscape();
+	createLandscape();
 	if ( splash )
 	{
-		splash_screen();
+		splashScreen();
 	}
 	else
 	{
@@ -1455,10 +1483,7 @@ function update()
 	drawObjects();
 
 	fl_font( 'Arial bold', 30 );
-	fl_color( 'gray' );
-	fl_draw( 'Level ' + level, 11, 571 );
-	fl_color( 'white' );
-	fl_draw( 'Level ' + level, 10, 570 );
+	drawShadowText( 'Level ' + level, 10, 570, 'white', 'gray', 1 );
 
 	if ( !sounds )
 	{
@@ -1485,10 +1510,7 @@ function update()
 		fl_font( 'Arial bold italic', Math.min( Math.floor( ox / 3 ), 40 ) );
 		var w = ctx.measureText( LS_param.name ).width;
 		var x = ( Screen.clientWidth - w ) / 2;
-		fl_color( 'black' );
-		fl_draw( LS_param.name, x - 2, 52 );
-		fl_color( 'yellow' );
-		fl_draw( LS_param.name, x, 50 );
+		drawShadowText( LS_param.name, x, 50, 'yellow', 'black', 2 );
 	}
 
 	spaceship.accel = false;
@@ -1553,12 +1575,8 @@ function update()
 		else
 		{
 			fl_font( 'Arial bold italic', 50 );
-			fl_color( 'gray' );
-			fl_draw( collision ? "*** OUCH!! ***" : completed ?
-				"Level complete!" : "*** PAUSED ***", 242, 302 );
-			fl_color( 'white' );
-			fl_draw( collision ? "*** OUCH!! ***" : completed ?
-				"Level complete!" : "*** PAUSED ***", 240, 300 );
+			drawShadowText( collision ? "*** OUCH!! ***" : completed ?
+				"Level complete!" : "*** PAUSED ***", 240, 300, 'white', 'gray', 2 );
 		}
 	}
 }
@@ -1581,7 +1599,7 @@ function getTransparencyMask( img )
 	return mask;
 }
 
-async function splash_screen()
+async function splashScreen()
 {
 	window.cancelAnimationFrame( requestId );
 	failed_count = 0;
@@ -1606,35 +1624,26 @@ async function splash_screen()
 		var text = 'JScriptrator';
 		var w = ctx.measureText( text ).width;
 		var x = ( Screen.clientWidth - w ) / 2;
-
-		fl_color( 'darkgray' );
-		fl_draw( text, x + 4, 104 );
-		fl_color( 'red' );
-		fl_draw( text, x, 100 );
+		drawShadowText( text, x, 100, 'red', 'darkgray', 4 );
 
 		fl_font( 'Arial bold', 26 );
 		text = '(c) 2018 wcout';
 		w = ctx.measureText( text ).width;
 		x = ( Screen.clientWidth - w ) / 2;
-		fl_color( 'black' );
-		fl_draw( text, x + 2, 152 );
-		fl_color( 'cyan' );
-		fl_draw( text, x, 150 );
+		drawShadowText( text, x, 150, 'cyan', 'black', 2 );
 
 		fl_font( 'Arial bold italic', 40 );
 		text = "Hit space key to start";
 		w = ctx.measureText( text ).width;
 		x = ( Screen.clientWidth - w ) / 2;
-		fl_color( 'black' );
-		fl_draw( text, x + 2, 572 );
-		fl_color( 'yellow' );
-		fl_draw( text, x, 570 );
+		drawShadowText( text, x, 570, 'yellow', 'black', 2 );
 
 		fl_font( 'Arial bold italic', 30 );
-		fl_color( 'gray' );
-		fl_draw( 'Level ' + level, 11, 571 );
+		drawShadowText( 'Level ' + level, 10, 570, 'white', 'gray', 1 );
+
 		fl_color( 'white' );
-		fl_draw( 'Level ' + level, 10, 570 );
+		fl_font( 'Arial', 10 );
+		fl_draw( 'v1.0', 770, 590 );
 
 		var w = ship.width * scale;
 		var h = ship.height * scale;
@@ -1657,7 +1666,7 @@ async function splash_screen()
 
 function onResourcesLoaded()
 {
-	create_landscape();
+	createLandscape();
 
 	shipTPM = getTransparencyMask( ship );
 
@@ -1668,10 +1677,10 @@ function onResourcesLoaded()
 	Screen.addEventListener( "touchstart", onEvent );
 	Screen.addEventListener( "touchend", onEvent );
 
-	splash_screen();
+	splashScreen();
 }
 
-function load_images()
+function loadImages()
 {
 	mute = new Image();
 	mute.src = 'mute.svg';
@@ -1698,7 +1707,7 @@ function load_images()
 	drop.onload = onResourcesLoaded; // needed to have the image dimensions available!
 }
 
-function load_sounds()
+function loadSounds()
 {
 	drop_sound = new Audio( 'drop.wav' );
 	rocket_launched_sound = new Audio( 'rocket_launched.wav' );
@@ -1723,8 +1732,8 @@ function sleep( ms )
 function main()
 {
 	console.log( "dx = %d", dx );
-	load_sounds();
-	load_images();
+	loadSounds();
+	loadImages();
 
 	Screen = document.getElementById( 'viewport' );
 	var rect = new Fl_Rect( 0, 0, Screen.clientWidth, Screen.clientHeight ); // test class
