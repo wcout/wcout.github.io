@@ -1227,15 +1227,17 @@ function drawLandscape()
 	ctx.closePath();
 	ctx.fillStyle = ground_grad;
 	ctx.fill();
-	ctx.strokeStyle = LS_colors.outline ? LS_colors.outline : 'black';
 	if ( outline_width )
 	{
+		ctx.strokeStyle = LS_colors.outline ? LS_colors.outline : 'black';
 		ctx.stroke();
 	}
 
+/*
 	var outline_width = (LS_param.outline_width != undefined) ? LS_param.outline_width : 2;
 	ctx.lineWidth = outline_width;
 	var delta = outline_width ? Math.floor( outline_width / 2 ) + 1 : 0;
+*/
 	ctx.beginPath();
 	ctx.moveTo( -delta, -delta );
 	for ( var i = -delta; i < Screen.clientWidth + delta; i++ )
@@ -1259,9 +1261,9 @@ function drawLandscape()
 	ctx.closePath();
 	ctx.fillStyle = sky_grad;
 	ctx.fill();
-	ctx.strokeStyle = LS_colors.outline ? LS_colors.outline : 'black';
 	if ( outline_width )
 	{
+		ctx.strokeStyle = LS_colors.outline ? LS_colors.outline : 'black';
 		ctx.stroke();
 	}
 	fl_line_style( 0, 0 );
