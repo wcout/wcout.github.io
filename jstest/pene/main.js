@@ -64,10 +64,12 @@ const KEY_SOUND = 83;   // 's'
 
 //var _TEST_ = true;
 
+const fps = 60; // default of requestAnimationFrame()
+const dx = Math.floor( 200 / fps ); // desired scroll speed is 200 px/sec.
+const dxc = Math.floor( fps / ( 200 - ( fps * dx ) ) );
+
 var Screen;
 var ctx;
-var fps = 60; // default of requestAnimationFrame()
-var mspf = 1000 / fps;
 var LS = [];
 var LS_colors = [];
 var LS_param = [];
@@ -92,7 +94,6 @@ var frame = 0;
 var last_bomb_frame = 0;
 var keysDown = [];
 var level = 1;
-var dx = Math.floor( 200 / fps ); // desired scroll speed is 200 px/sec.
 var objects = [];
 var sounds = true;
 
@@ -130,6 +131,7 @@ var speed_right = 0;
 var stars = [];
 var shipTPM = [];
 var requestId;
+var done_count = 0;
 
 class Gradient
 {
@@ -284,6 +286,7 @@ function resetGameStats()
 {
 	console.log( 'resetGameStats' );
 	window.localStorage.removeItem( 'level' );
+	window.localStorage.removeItem( 'done_count' );
 }
 
 function setLevel( l )
@@ -686,7 +689,7 @@ function brightenImage( img, adjustment )
 	var data = imageData.data;
 
 	// 'brighten' data
-	for ( var i = 0; i < data.length; i+= 4 )
+	for ( var i = 0; i < data.length; i += 4 )
 	{
 		data[i]     += adjustment;
 		data[i + 1] += adjustment;
@@ -1136,8 +1139,9 @@ function updateObjects()
 			var gone_y = sky >= 0 ? sky : -o.image_height;
 			if ( o.y <= gone_y )
 			{
-				objects.splice( i, 1 );
-				i--;
+				o.exploded = true;
+//				objects.splice( i, 1 );
+//				i--;
 			}
 		}
 		else if ( o.type == O_DROP )
@@ -1192,8 +1196,12 @@ function drawBgPlane()
 		return;
 
 	// test for "parallax scrolling" background plane
-	var xoff = ox / 3;	// scrollfactor 1/3
+	var xoff = Math.floor( ox / 3 );	// scrollfactor 1/3
 	fl_color( LS_colors.plane );
+	if ( deco )
+	{
+		fl_line_style( 0, 2 ); // otherwise 'gaps' between adjacent lines (deco shines through)
+	}
 	for ( var i = 0; i < Screen.clientWidth; i++ )
 	{
 		if ( ox + i >= LS.length ) break;
@@ -1204,6 +1212,7 @@ function drawBgPlane()
 			fl_yxline( i, g1 , g2 );
 		}
 	}
+	fl_line_style( 0, 0 );
 }
 
 function drawLandscape()
@@ -1311,6 +1320,8 @@ async function resetLevel( wait_ = true, splash_ = false )
 	if ( level > 10 )
 	{
 		level = 1;
+		done_count++;
+		saveValue( 'done', done_count );
 	}
 	saveValue( 'level', level );
 	createLandscape();
@@ -1559,8 +1570,9 @@ function update()
 
 	if ( !paused || completed )
 	{
-		ox += dx;
-		spaceship.x += dx;
+		var delta = ( frame % dxc == 0 );
+		ox += ( dx + delta );
+		spaceship.x += ( dx + delta );
 	}
 	if ( ox + Screen.clientWidth >= LS.length )
 	{
@@ -1618,27 +1630,29 @@ async function splashScreen()
 	var gradient = new Gradient( 'skyblue', 'saddlebrown' );
 	while ( !keysDown[KEY_FIRE] )
 	{
-//		fl_color( 'dimgray' );
 		ctx.fillStyle = gradient.grad;
 		fl_rectf( 0, 0, Screen.clientWidth, Screen.clientHeight );
 
 		fl_font( 'Arial bold italic', 90 );
+		ctx.save();
+		ctx.rotate( -4 * Math.PI / 180 );
 		var text = 'JScriptrator';
 		var w = ctx.measureText( text ).width;
 		var x = ( Screen.clientWidth - w ) / 2;
-		drawShadowText( text, x, 100, 'red', 'darkgray', 4 );
+		drawShadowText( text, x, 120, 'red', 'darkgray', 4 );
+		ctx.restore();
 
+		ctx.save();
 		fl_font( 'Arial bold', 26 );
 		text = '(c) 2018 wcout';
-		w = ctx.measureText( text ).width;
-		x = ( Screen.clientWidth - w ) / 2;
+		ctx.textAlign = "center";
+		x = Screen.clientWidth / 2;
 		drawShadowText( text, x, 150, 'cyan', 'black', 2 );
 
 		fl_font( 'Arial bold italic', 40 );
 		text = "Hit space key to start";
-		w = ctx.measureText( text ).width;
-		x = ( Screen.clientWidth - w ) / 2;
-		drawShadowText( text, x, 570, 'yellow', 'black', 2 );
+		drawShadowText( text, Screen.clientWidth / 2, 570, 'yellow', 'black', 2 );
+		ctx.restore();
 
 		fl_font( 'Arial bold italic', 30 );
 		drawShadowText( 'Level ' + level, 10, 570, 'white', 'gray', 1 );
@@ -1733,7 +1747,7 @@ function sleep( ms )
 
 function main()
 {
-	console.log( "dx = %d", dx );
+	console.log( "dx = %d, dxc = %d", dx, dxc );
 	loadSounds();
 	loadImages();
 
@@ -1758,6 +1772,7 @@ function main()
 	{
 		sounds = stored_sounds;
 	}
+	done_count = loadValue( 'done' );
 }
 
 main();
