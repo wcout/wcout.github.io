@@ -707,6 +707,16 @@ function brightenImage( img, adjustment )
 
 function onDecoLoaded()
 {
+	// WORKAROUND: check if already one deco object in list,
+	// (obviously onDecoLoaded() can somehow be activated twice)
+	for ( var i = 0; i < objects.length; i++ )
+	{
+		if ( objects[i].type == O_DECO )
+		{
+			return;
+		}
+	}
+
 	deco = brightenImage( deco, 50 );
 	var y = max_sky  + Math.floor( Math.random() * ( Screen.clientHeight - max_sky - max_ground ) );
 	var x = Math.floor( Math.random() * LS.length * 2 / 3 ) + Screen.clientWidth / 2;
@@ -1055,7 +1065,7 @@ function drawObjects( drawDeco = false )
 			o.draw();
 			if ( !paused && o.type == O_DECO )
 			{
-				o.x++;
+				o.x += ( dx - 1 );
 			}
 		}
 	}
