@@ -68,6 +68,9 @@ const fps = 60; // default of requestAnimationFrame()
 const dx = Math.floor( 200 / fps ); // desired scroll speed is 200 px/sec.
 const dxc = Math.floor( fps / ( 200 - ( fps * dx ) ) );
 
+const SCREEN_W = 800;
+const SCREEN_H = 600;
+
 var Screen;
 var ctx;
 var LS = [];
@@ -138,8 +141,8 @@ class Gradient
 	constructor( from, to, type = 0 )
 	{
 		// type: 0 = vertical, 1 = horizontal
-		this.grad = ctx.createLinearGradient( 0, type ? Screen.clientHeight : 0,
-		                                      type ? Screen.clientWidth : 0, Screen.clientHeight );
+		this.grad = ctx.createLinearGradient( 0, type ? SCREEN_H : 0,
+		                                      type ? SCREEN_W : 0, SCREEN_H );
 		this.grad.addColorStop( 0, from );
 		this.grad.addColorStop( 1, to );
 	}
@@ -448,7 +451,7 @@ class Missile extends ObjInfo
 	{
 		var x = this.x - ox; // x-coord. on screen
 
-		var alpha = 1. - this.moved_stretch() / ( Screen.clientWidth / 2 + 40 ); // FIXME: parameterize
+		var alpha = 1. - this.moved_stretch() / ( SCREEN_W / 2 + 40 ); // FIXME: parameterize
 		var rgba = ( LS_colors.missile ? LS_colors.missile : 'rgba(255,255,255,' ) + alpha + ')';
 		ctx.fillStyle = rgba;
 		fl_rectf( x, this.y, this.image_width, this.image_height );
@@ -475,7 +478,7 @@ class Cloud extends ObjInfo
 		if ( this.down )
 		{
 			this.y++;
-			if ( this.y + this.image_height >= Screen.clientHeight - LS[this.x + this.image_width / 2].ground )
+			if ( this.y + this.image_height >= SCREEN_H - LS[this.x + this.image_width / 2].ground )
 			{
 				this.down = !this.down;
 			}
@@ -505,7 +508,7 @@ class Bady extends ObjInfo
 		if ( this.down )
 		{
 			this.y++;
-			if ( this.y + this.image_height >= Screen.clientHeight - LS[this.x + this.image_width / 2].ground )
+			if ( this.y + this.image_height >= SCREEN_H - LS[this.x + this.image_width / 2].ground )
 			{
 				this.down = !this.down;
 			}
@@ -723,8 +726,8 @@ function onDecoLoaded()
 	}
 
 	deco = brightenImage( deco, 50 );
-	var y = max_sky  + Math.floor( Math.random() * ( Screen.clientHeight - max_sky - max_ground ) );
-	var x = Math.floor( Math.random() * LS.length * 2 / 3 ) + Screen.clientWidth / 2;
+	var y = max_sky  + Math.floor( Math.random() * ( SCREEN_H - max_sky - max_ground ) );
+	var x = Math.floor( Math.random() * LS.length * 2 / 3 ) + SCREEN_W / 2;
 	var obj = new ObjInfo( O_DECO, x, y, deco );
 	obj.scale = 2;
 	objects.push( obj );
@@ -733,7 +736,7 @@ function onDecoLoaded()
 function finishedMessage()
 {
 	fl_align( 'center' );
-	var x = Screen.clientWidth / 2;
+	var x = SCREEN_W / 2;
 	fl_font( 'Arial bold italic', 50 );
 	drawShadowText( "** YOU DID IT! **", x, 150, 'red', 'gray' );
 	fl_font( 'Arial bold', 34 );
@@ -759,14 +762,14 @@ function createLandscape()
 		var g = LS[0].ground;
 		var obj = 0;
 		var item = { sky: s, ground:g, obj:obj };
-		for ( var i = 0; i < Screen.clientWidth / 2; i++ )
+		for ( var i = 0; i < SCREEN_W / 2; i++ )
 		{
 			LS.splice( 0, 0, item ); // inserts at begin
 		}
 		s = LS[LS.length - 1].sky;
 		g = LS[LS.length - 1].ground;
 		item = { sky: s, ground:g, obj:obj };
-		for ( var i = 0; i < Screen.clientWidth / 2; i++ )
+		for ( var i = 0; i < SCREEN_W / 2; i++ )
 		{
 			LS.push( 0, 0, item );
 		}
@@ -787,7 +790,7 @@ function createLandscape()
 	{
 		if ( Math.random() > 0.95 )
 		{
-			var y = Math.floor( Math.random() * Screen.clientHeight );
+			var y = Math.floor( Math.random() * SCREEN_H );
 			var d = Math.floor( Math.random() * 2 ) + 1;
 			var star = { y, d };
 			stars[i] = star;
@@ -816,7 +819,7 @@ function createLandscape()
 		if ( o == O_ROCKET )
 		{
 			var accel = 1 + Math.random() / 50;
-			var obj = new Rocket( i - rocket.width / 2, Screen.clientHeight - LS[i].ground - rocket.height, rocket, accel );
+			var obj = new Rocket( i - rocket.width / 2, SCREEN_H - LS[i].ground - rocket.height, rocket, accel );
 			objects.push( obj );
 		}
 		else if ( o == O_DROP )
@@ -829,14 +832,14 @@ function createLandscape()
 		{
 			var frames = 14;
 			var w = radar.width / frames;
-			var obj = new ObjInfo( o, i - w / 2, Screen.clientHeight - LS[i].ground - radar.height, radar, frames );
+			var obj = new ObjInfo( o, i - w / 2, SCREEN_H - LS[i].ground - radar.height, radar, frames );
 			objects.push( obj );
 		}
 		else if ( o == O_BADY )
 		{
 			var frames = 4;
 			var w = bady.width / frames;
-			var h = Screen.clientHeight - LS[i].sky - LS[i].ground - bady.height;
+			var h = SCREEN_H - LS[i].sky - LS[i].ground - bady.height;
 			var obj = new Bady( i - w / 2, Math.floor( Math.random() * h ) + LS[i].sky, bady, frames );
 			objects.push( obj );
 		}
@@ -847,7 +850,7 @@ function createLandscape()
 		}
 		else if ( o == O_PHASER )
 		{
-			var obj = new Phaser( i - phaser.width / 2, Screen.clientHeight - LS[i].ground - phaser.height, phaser );
+			var obj = new Phaser( i - phaser.width / 2, SCREEN_H - LS[i].ground - phaser.height, phaser );
 			objects.push( obj );
 		}
 		else if ( o == O_COLOR_CHANGE )
@@ -862,7 +865,7 @@ function createLandscape()
 	// calc. initial ship position (centered between sky/ground)
 	var x = 20;
 	var cx = x + ship.width / 2;
-	var y = LS[cx].sky + ( Screen.clientHeight - LS[cx].ground - LS[cx].sky - ship.height ) / 2;
+	var y = LS[cx].sky + ( SCREEN_H - LS[cx].ground - LS[cx].sky - ship.height ) / 2;
 	spaceship = new Ship( x, y, ship );
 	objects.splice( 0, 0, spaceship );
 
@@ -873,7 +876,7 @@ function createLandscape()
 		objects.push( clouds[i] );
 	}
 
-	ground_grad = ctx.createLinearGradient( 0, Screen.clientHeight - max_ground, 0, Screen.clientHeight );
+	ground_grad = ctx.createLinearGradient( 0, SCREEN_H - max_ground, 0, SCREEN_H );
 	ground_grad.addColorStop( 0, 'white' );
 	ground_grad.addColorStop( 1, LS_colors.ground );
 
@@ -881,7 +884,7 @@ function createLandscape()
 	sky_grad.addColorStop( 0, LS_colors.sky );
 	sky_grad.addColorStop( 1, 'white' );
 
-	bg_grad = ctx.createLinearGradient( 0, 0, 0, Screen.clientHeight );
+	bg_grad = ctx.createLinearGradient( 0, 0, 0, SCREEN_H );
 	bg_grad.addColorStop( 0, 'white' );
 	bg_grad.addColorStop( 1, LS_colors.background );
 }
@@ -898,6 +901,19 @@ function fireMissile()
 	var obj = new Missile( spaceship.x + spaceship.image_width + 20, spaceship.y + spaceship.image_height/2 + 7, 40, 3 );
 	objects.splice( 0, 0, obj );
 	playSound( missile_sound ); // stay behind cloud!
+}
+
+function onResize()
+{
+	console.log( "onResize: %d x %d", window.innerWidth, window.innerHeight );
+	if ( ctx )
+	{
+		ctx.setTransform( 1, 0, 0, 1, 0, 0 );
+		Screen.width = window.innerWidth;
+		Screen.height = window.innerHeight;
+		ctx = Screen.getContext( '2d' );
+		ctx.scale( Screen.width / SCREEN_W, Screen.height / SCREEN_H );
+	}
 }
 
 function onKeyDown( k )
@@ -1064,7 +1080,7 @@ function drawObjects( drawDeco = false )
 		{
 			continue;
 		}
-		if ( o.x + o.image_width * o.scale >= ox && o.x < ox + Screen.clientWidth )
+		if ( o.x + o.image_width * o.scale >= ox && o.x < ox + SCREEN_W )
 		{
 			o.draw();
 			if ( !paused && o.type == O_DECO )
@@ -1083,7 +1099,7 @@ function collisionWithLandscape()
 		{
 			if ( !shipTPM[ y * spaceship.image_width + x ] )
 			{
-				var g = Screen.clientHeight - LS[ spaceship.x + x].ground;
+				var g = SCREEN_H - LS[ spaceship.x + x].ground;
 				if ( spaceship.y + y > g )
 				{
 					return true;
@@ -1111,7 +1127,7 @@ function updateObjects()
 			continue;
 		}
 		var cx = o.x + o.image_width / 2;
-		if ( cx >= LS.length || o.x + o.image_width < ox || o.x >= ox + Screen.clientWidth )
+		if ( cx >= LS.length || o.x + o.image_width < ox || o.x >= ox + SCREEN_W )
 		{
 			continue;
 		}
@@ -1120,7 +1136,7 @@ function updateObjects()
 			// check for collision with landscape
 			for ( var x = 0; x < o.image_width; x++ )
 			{
-				if ( ( o.y + o.image_height >= Screen.clientHeight - LS[o.x + x].ground ) ||
+				if ( ( o.y + o.image_height >= SCREEN_H - LS[o.x + x].ground ) ||
 				  ( LS[o.x + x].sky >= 0 && o.y < LS[o.x + x].sky ) )
 				{
 					if ( collisionWithLandscape() )
@@ -1139,7 +1155,7 @@ function updateObjects()
 		}
 		else if ( o.type == O_ROCKET )
 		{
-			if ( !o.started && Math.abs( o.x - spaceship.x ) < Screen.clientWidth / 2 )
+			if ( !o.started && Math.abs( o.x - spaceship.x ) < SCREEN_W / 2 )
 			{
 				o.started = ( Math.random() > 0.8 );
 				if ( o.started )
@@ -1160,7 +1176,7 @@ function updateObjects()
 		}
 		else if ( o.type == O_DROP )
 		{
-			if ( !o.started && Math.abs( o.x - spaceship.x ) < Screen.clientWidth / 2 )
+			if ( !o.started && Math.abs( o.x - spaceship.x ) < SCREEN_W / 2 )
 			{
 				o.started = ( Math.random() > .98 );
 				if ( o.started )
@@ -1169,7 +1185,7 @@ function updateObjects()
 				}
 			}
 			o.update();
-			if ( o.y > Screen.clientHeight - LS[cx].ground - o.image.height / 2 )
+			if ( o.y > SCREEN_H - LS[cx].ground - o.image.height / 2 )
 			{
 				objects.splice( i, 1 );
 				i--;
@@ -1178,10 +1194,10 @@ function updateObjects()
 		else if ( o.type == O_MISSILE )
 		{
 			o.update();
-			if ( ( Screen.clientHeight - LS[cx].ground < o.y ) ||
+			if ( ( SCREEN_H - LS[cx].ground < o.y ) ||
 			     ( o.y < LS[cx].sky ) ||
-			       o.moved_stretch() > Screen.clientWidth / 2 ||
-			       o.x + o.image_width * o.scale < ox || o.x >= ox + Screen.clientWidth )
+			       o.moved_stretch() > SCREEN_W / 2 ||
+			       o.x + o.image_width * o.scale < ox || o.x >= ox + SCREEN_W )
 			{
 				objects.splice( i, 1 );
 				i--;
@@ -1190,7 +1206,7 @@ function updateObjects()
 		else if ( o.type == O_BOMB )
 		{
 			o.update();
-			if ( o.y > Screen.clientHeight - LS[cx].ground - o.image.height / 2 )
+			if ( o.y > SCREEN_H - LS[cx].ground - o.image.height / 2 )
 			{
 				objects.splice( i, 1 );
 				i--;
@@ -1216,11 +1232,11 @@ function drawBgPlane()
 	{
 		fl_line_style( 0, 2 ); // otherwise 'gaps' between adjacent lines (deco shines through)
 	}
-	for ( var i = 0; i < Screen.clientWidth; i++ )
+	for ( var i = 0; i < SCREEN_W; i++ )
 	{
 		if ( ox + i >= LS.length ) break;
-		var g2 = Screen.clientHeight - LS[ ox + i].ground;
-		var g1 = Screen.clientHeight - LS[ xoff + i + 3 * Screen.clientWidth ].ground * 2 / 3;
+		var g2 = SCREEN_H - LS[ ox + i].ground;
+		var g1 = SCREEN_H - LS[ xoff + i + 3 * SCREEN_W ].ground * 2 / 3;
 		if ( g2 > g1 )
 		{
 			fl_yxline( i, g1 , g2 );
@@ -1235,8 +1251,8 @@ function drawLandscape()
 	var outline_width = (LS_param.outline_width != undefined) ? LS_param.outline_width : 2;
 	ctx.lineWidth = outline_width;
 	var delta = outline_width ? Math.floor( outline_width / 2 ) + 1 : 0;
-	ctx.moveTo( -delta,  Screen.clientHeight + delta );
-	for ( var i = -delta; i < Screen.clientWidth + delta; i++ )
+	ctx.moveTo( -delta,  SCREEN_H + delta );
+	for ( var i = -delta; i < SCREEN_W + delta; i++ )
 	{
 		var x = ox + i;
 		var g = -1;
@@ -1244,9 +1260,9 @@ function drawLandscape()
 		{
 			g = LS[x].ground;
 		}
-		ctx.lineTo( i, Screen.clientHeight - g );
+		ctx.lineTo( i, SCREEN_H - g );
 	}
-	ctx.lineTo( Screen.clientWidth + delta, Screen.clientHeight + delta );
+	ctx.lineTo( SCREEN_W + delta, SCREEN_H + delta );
 	ctx.closePath();
 	ctx.fillStyle = ground_grad;
 	ctx.fill();
@@ -1263,7 +1279,7 @@ function drawLandscape()
 */
 	ctx.beginPath();
 	ctx.moveTo( -delta, -delta );
-	for ( var i = -delta; i < Screen.clientWidth + delta; i++ )
+	for ( var i = -delta; i < SCREEN_W + delta; i++ )
 	{
 		var x = ox + i;
 		var s = -1;
@@ -1280,7 +1296,7 @@ function drawLandscape()
 			ctx.lineTo( i, s );
 		}
 	}
-	ctx.lineTo( Screen.clientWidth + delta, -delta );
+	ctx.lineTo( SCREEN_W + delta, -delta );
 	ctx.closePath();
 	ctx.fillStyle = sky_grad;
 	ctx.fill();
@@ -1463,7 +1479,7 @@ function update()
 	}
 	// handle color change
 	var changed = false;
-	for ( var i = ox; i < ox + Screen.clientWidth / 2; i++ )
+	for ( var i = ox; i < ox + SCREEN_W / 2; i++ )
 	{
 		if ( LS[i].bg_color != undefined )
 		{
@@ -1488,13 +1504,13 @@ function update()
 
 	fl_color( 'cyan' );
 	ctx.fillStyle = bg_grad;
-	fl_rectf( 0, 0, Screen.clientWidth, Screen.clientHeight );
+	fl_rectf( 0, 0, SCREEN_W, SCREEN_H );
 
 	if ( LS_param.stars )
 	{
 		fl_color( 'yellow' );
 		var sx = Math.floor( ox / 10 );
-		for ( var i = sx; i < sx + Screen.clientWidth; i++ )
+		for ( var i = sx; i < sx + SCREEN_W; i++ )
 		{
 			if ( stars[i] )
 			{
@@ -1511,13 +1527,13 @@ function update()
 
 	fl_font( 'Arial bold', 30 );
 	fl_align();
-	drawShadowText( 'Level ' + level, 10, 570, 'white', 'gray', 1 );
+	drawShadowText( 'Level ' + level, 10, SCREEN_H - 30, 'white', 'gray', 1 );
 
 	if ( !sounds )
 	{
 		var text = '\u{1f507}'; // unicode character 'speaker with cancellation stroke'
-		var x = Screen.clientWidth - 40;
-		var y = 560;
+		var x = SCREEN_W - 40;
+		var y = SCREEN_H - 40;
 //		ctx.fillText( text, x, y );
 		ctx.drawImage( mute, x, y, 30, 30 );
 	}
@@ -1528,16 +1544,16 @@ function update()
 		var w = ship.width / 4;
 		var h = ship.height / 4;
 		var x = 10 + ( w + 5 ) * i;
-		var y = 580;
+		var y = SCREEN_H - 20;
 		ctx.drawImage( ship, 0, 0, ship.width, ship.height,
                      x , y , w, h );
 	}
 
-	if ( LS_param.name && ox < Screen.clientWidth / 2 )
+	if ( LS_param.name && ox < SCREEN_W / 2 )
 	{
 		fl_font( 'Arial bold italic', Math.min( Math.floor( ox / 3 ), 40 ) );
 		var w = ctx.measureText( LS_param.name ).width;
-		var x = ( Screen.clientWidth - w ) / 2;
+		var x = ( SCREEN_W - w ) / 2;
 		drawShadowText( LS_param.name, x, 50, 'yellow', 'black', 2 );
 	}
 
@@ -1551,7 +1567,7 @@ function update()
 			repeated_right++;
 			if ( repeated_right > 0 )
 			{
-				if ( spaceship.x + spaceship.image_width / 2 < ox + Screen.clientWidth / 2 )
+				if ( spaceship.x + spaceship.image_width / 2 < ox + SCREEN_W / 2 )
 				{
 					spaceship.x += dx;
 					speed_right++;
@@ -1569,7 +1585,7 @@ function update()
 		}
 		if ( k[KEY_DOWN] || k[KEY_ARROW_DOWN] )
 		{
-			if ( spaceship.y + spaceship.image_height < Screen.clientHeight )
+			if ( spaceship.y + spaceship.image_height < SCREEN_H )
 			{
 				spaceship.y += dx;
 			}
@@ -1589,9 +1605,9 @@ function update()
 		ox += ( dx + delta );
 		spaceship.x += ( dx + delta );
 	}
-	if ( ox + Screen.clientWidth >= LS.length )
+	if ( ox + SCREEN_W >= LS.length )
 	{
-		ox = LS.length - Screen.clientWidth;
+		ox = LS.length - SCREEN_W;
 		completed = true;
 		resetLevel();
 	}
@@ -1606,7 +1622,7 @@ function update()
 			fl_font( 'Arial bold italic', 50 );
 			fl_align( 'center' );
 			drawShadowText( collision ? "*** OUCH!! ***" : completed ?
-				"Level complete!" : "*** PAUSED ***", Screen.clientWidth / 2, 300, 'white', 'gray', 2 );
+				"Level complete!" : "*** PAUSED ***", SCREEN_W / 2, 300, 'white', 'gray', 2 );
 		}
 	}
 }
@@ -1632,6 +1648,7 @@ function getTransparencyMask( img )
 async function splashScreen()
 {
 	window.cancelAnimationFrame( requestId );
+	document.querySelector( 'footer' ).style.display = 'block';
 	failed_count = 0;
 	if ( music )
 	{
@@ -1647,14 +1664,14 @@ async function splashScreen()
 	while ( !keysDown[KEY_FIRE] )
 	{
 		ctx.fillStyle = gradient.grad;
-		fl_rectf( 0, 0, Screen.clientWidth, Screen.clientHeight );
+		fl_rectf( 0, 0, SCREEN_W, SCREEN_H );
 
 		fl_font( 'Arial bold italic', 90 );
 		ctx.save();
 		ctx.rotate( -4 * Math.PI / 180 );
 		var text = 'JScriptrator';
 		var w = ctx.measureText( text ).width;
-		var x = ( Screen.clientWidth - w ) / 2;
+		var x = ( SCREEN_W - w ) / 2;
 		drawShadowText( text, x, 120, 'red', 'darkgray', 4 );
 		ctx.restore();
 
@@ -1662,25 +1679,25 @@ async function splashScreen()
 		fl_font( 'Arial bold', 26 );
 		text = '(c) 2018 wcout';
 		ctx.textAlign = "center";
-		x = Screen.clientWidth / 2;
+		x = SCREEN_W / 2;
 		drawShadowText( text, x, 150, 'cyan', 'black', 2 );
 
 		fl_font( 'Arial bold italic', 40 );
 		text = "Hit space key to start";
-		drawShadowText( text, Screen.clientWidth / 2, 570, 'yellow', 'black', 2 );
+		drawShadowText( text, SCREEN_W / 2, SCREEN_H - 30, 'yellow', 'black', 2 );
 		fl_align();
 
 		fl_font( 'Arial bold italic', 30 );
-		drawShadowText( 'Level ' + level, 10, 570, 'white', 'gray', 1 );
+		drawShadowText( 'Level ' + level, 10, SCREEN_H - 30, 'white', 'gray', 1 );
 
 		fl_color( 'white' );
 		fl_font( 'Arial', 10 );
-		fl_draw( 'v1.0', Screen.clientWidth - 30, 590 );
+		fl_draw( 'v1.0', SCREEN_W - 30, SCREEN_H - 10 );
 
 		var w = ship.width * scale;
 		var h = ship.height * scale;
-		var x = ( Screen.clientWidth - w ) / 2;
-		var y = ( Screen.clientHeight - h ) / 2;
+		var x = ( SCREEN_W - w ) / 2;
+		var y = ( SCREEN_H - h ) / 2;
 		ctx.drawImage( ship, 0, 0, ship.width, ship.height,
                      x , y + 40 , w, h );
 		await sleep( 10 );
@@ -1692,6 +1709,7 @@ async function splashScreen()
 	}
 	music.stop();
 	playSound( drop_sound );
+	document.querySelector( 'footer' ).style.display = 'none';
 	requestId = window.requestAnimationFrame( update );
 	resetLevel( false );
 }
@@ -1767,9 +1785,13 @@ function main()
 	loadSounds();
 	loadImages();
 
+	window.addEventListener( 'resize', onResize );
 	Screen = document.getElementById( 'viewport' );
-	var rect = new Fl_Rect( 0, 0, Screen.clientWidth, Screen.clientHeight ); // test class
+	Screen.width = window.innerWidth;
+	Screen.height = window.innerHeight;
+	var rect = new Fl_Rect( 0, 0, SCREEN_W, SCREEN_H ); // test class
 	ctx = Screen.getContext( '2d' );
+	ctx.scale( Screen.width / SCREEN_W, Screen.height / SCREEN_H );
 
 	fl_color( 'black' );
 	fl_rectf( 0, 0, rect.w, rect.h );
@@ -1791,6 +1813,7 @@ function main()
 		sounds = stored_sounds;
 	}
 	done_count = loadValue( 'done' );
+
 }
 
 main();
