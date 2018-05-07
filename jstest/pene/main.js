@@ -1037,7 +1037,7 @@ function onEvent( e )
 			fireMissile();
 			return;
 		}
-		if ( e.type == "mousedown" && my < Screen.clientHeight / 3 && !frame )
+		if ( my < Screen.clientHeight / 3 && !frame )
 		{
 			// top zone in title menu = go fullscreen
 			fullscreen( Screen );
