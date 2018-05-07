@@ -62,6 +62,8 @@ const KEY_ARROW_DOWN = 65;
 const KEY_FIRE = 32;    // space
 const KEY_SOUND = 83;   // 's'
 
+const KEY_FULLSCREEN = 122; // F11
+
 //var _TEST_ = true;
 
 const fps = 60; // default of requestAnimationFrame()
@@ -657,6 +659,17 @@ class Ship extends ObjInfo
 	}
 }
 
+function fullscreen( el )
+{
+	if ( el.webkitRequestFullScreen )
+	{
+		el.webkitRequestFullScreen();
+	}
+	else
+	{
+		el.mozRequestFullScreen();
+	}
+}
 
 function playSound( sound )
 {
@@ -911,13 +924,17 @@ function onResize()
 		ctx.setTransform( 1, 0, 0, 1, 0, 0 );
 		Screen.width = window.innerWidth;
 		Screen.height = window.innerHeight;
-		ctx = Screen.getContext( '2d' );
 		ctx.scale( Screen.width / SCREEN_W, Screen.height / SCREEN_H );
 	}
 }
 
 function onKeyDown( k )
 {
+	if ( k == KEY_FULLSCREEN )
+	{
+		console.log( "going fullscreen" );
+		fullscreen( Screen );
+	}
 	if ( k == KEY_PAUSE && frame )
 	{
 		if ( paused && ( collision || completed ) )
@@ -1007,22 +1024,29 @@ function onEvent( e )
 			mx = e.offsetX;
 			my = e.offsetY;
 		}
+//		console.log( "mouse/touch event at %d/%d", mx, my );
 		var cx = spaceship.x + spaceship.image_width / 2 - ox;
 		var cy = spaceship.y + spaceship.image_height / 2;
-		if ( my > 400 && mx < 200 )
+		if ( my > Screen.clientHeight * 0.67 && mx < Screen.clientWidth / 4 )
 		{
 			// bottom left zone = drop bomb
 			keysDown[KEY_FIRE] = true;
 			onKeyDown(KEY_FIRE);
 			return;
 		}
-		if ( my > 400 && mx > 600 && frame )
+		if ( my > Screen.clientHeight * 0.67 && mx > Screen.clientWidth * 0.75 && frame )
 		{
 			// bottom right zone = fire missile
 			fireMissile();
 			return;
 		}
-		if ( Math.abs( mx - cx ) > 20 )
+		if ( my < Screen.clientHeight / 3 && !frame )
+		{
+			// top zone in title menu = go fullscreen
+			fullscreen( Screen );
+			return;
+		}
+		if ( Math.abs( mx - cx ) > Screen.clientWidth / 40 )
 		{
 			if ( mx > cx )
 			{
@@ -1037,7 +1061,7 @@ function onEvent( e )
 				onKeyDown(KEY_LEFT);
 			}
 		}
-		if ( Math.abs( my - cy ) > 20 )
+		if ( Math.abs( my - cy ) > Screen.clientWidth / 30 )
 		{
 			if ( my > cy )
 			{
