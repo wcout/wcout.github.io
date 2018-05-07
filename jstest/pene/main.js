@@ -659,24 +659,13 @@ class Ship extends ObjInfo
 	}
 }
 
-function fullscreen( element )
+function fullscreen( ele )
 {
-	if ( element.requestFullscreen )
-	{
-		element.requestFullscreen();
-	}
-	else if ( element.mozRequestFullScreen )
-	{
-		element.mozRequestFullScreen();
-	}
-	else if ( element.webkitRequestFullscreen )
-	{
-		element.webkitRequestFullscreen();
-	}
-	else if ( element.msRequestFullscreen )
-	{
-		element.msRequestFullscreen();
-	}
+	var requestFullScreen = ele.requestFullscreen       ||
+	                        ele.mozRequestFullScreen    ||
+	                        ele.webkitRequestFullScreen ||
+	                        ele.msRequestFullscreen;
+	requestFullScreen.call( ele );
 }
 
 function playSound( sound )
