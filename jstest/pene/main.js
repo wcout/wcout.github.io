@@ -665,6 +665,10 @@ function fullscreen( el )
 	{
 		el.webkitRequestFullScreen();
 	}
+	else if ( el.webkitRequestFullscreen )
+	{
+		el.webkitRequestFullscreen();
+	}
 	else
 	{
 		el.mozRequestFullScreen();
