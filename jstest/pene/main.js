@@ -661,9 +661,9 @@ class Ship extends ObjInfo
 
 function fullscreen( el )
 {
-	if ( el.webkitRequestFullScreen )
+	if ( el.requestFullscreen )
 	{
-		el.webkitRequestFullScreen();
+		el.requestFullscreen();
 	}
 	else if ( el.webkitRequestFullscreen )
 	{
