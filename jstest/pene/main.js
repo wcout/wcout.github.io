@@ -659,19 +659,23 @@ class Ship extends ObjInfo
 	}
 }
 
-function fullscreen( el )
+function fullscreen( element )
 {
-	if ( el.requestFullscreen )
+	if ( element.requestFullscreen )
 	{
-		el.requestFullscreen();
+		element.requestFullscreen();
 	}
-	else if ( el.webkitRequestFullscreen )
+	else if ( element.mozRequestFullScreen )
 	{
-		el.webkitRequestFullscreen();
+		element.mozRequestFullScreen();
 	}
-	else
+	else if ( element.webkitRequestFullscreen )
 	{
-		el.mozRequestFullScreen();
+		element.webkitRequestFullscreen();
+	}
+	else if ( element.msRequestFullscreen )
+	{
+		element.msRequestFullscreen();
 	}
 }
 
