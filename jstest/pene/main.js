@@ -596,6 +596,11 @@ class Phaser extends ObjInfo
 	update()
 	{
 		super.update();
+		if ( ( this.cnt % this.interval ) == this.interval - Math.floor( this.interval / 4 ) )
+		{
+			this.origImage = this.image;
+			this.setImage( phaser_active );
+		}
 		if ( ( this.cnt % this.interval ) == 0 )
 		{
 			this.started = true;
@@ -614,6 +619,7 @@ class Phaser extends ObjInfo
 			if ( this.delay == 20 )
 			{
 				this.started = false;
+				this.setImage( this.origImage )
 				for ( var i = 0; i < objects.length; i++ )
 				{
 					if ( this.beam == objects[i] )
@@ -1249,7 +1255,7 @@ function drawBgPlane()
 	// test for "parallax scrolling" background plane
 	var xoff = Math.floor( ox / 3 );	// scrollfactor 1/3
 	fl_color( LS_colors.plane );
-	if ( deco )
+//	if ( deco )
 	{
 		fl_line_style( 0, 2 ); // otherwise 'gaps' between adjacent lines (deco shines through)
 	}
