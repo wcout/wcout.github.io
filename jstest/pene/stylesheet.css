@@ -6,11 +6,26 @@ body, html {
 	font-family:sans-serif;
 }
 
+#fullscreen {
+	position:absolute;
+	opacity:0.4;
+	top:0px;
+	left:0px;
+	width:30px;
+	height:30px;
+}
+
 canvas {
 	background-color:black;
-	display: block;
-	height: 100%;
-	width: 100%;
+	display:block;
+	height:100%;
+	width:100%;
+}
+
+#fullscreen button:hover
+{
+	opacity:0.8;
+	color:blue;
 }
 
 footer {
