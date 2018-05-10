@@ -1735,18 +1735,26 @@ async function splashScreen()
 	var gradient = new Gradient( 'skyblue', 'saddlebrown' );
 	var sneak_time = 2 * fps;
 	var cnt = sneak_time;
+	var sx = spaceship.x;
 	while ( !keysDown[KEY_FIRE] )
 	{
 		cnt++;
 		var cyc = cnt % ( fps * 15 );
 		if ( cyc == sneak_time )
 		{
-			ox = Math.floor( Math.random() * ( LS.length - SCREEN_W ) );
+			ox = Math.floor( Math.random() * ( LS.length - 2 * SCREEN_W ) );
+			spaceship.x = sx;
+			scale = 2;	// if title gets visible again, restart animation fron begin
 		}
 		if ( cyc < sneak_time )
 		{
 			spaceship.scale = 1;
 			drawLevel();
+			ox++;
+			if ( spaceship.x > ox )
+			{
+				spaceship.x++;
+			}
 		}
 		else
 		{
