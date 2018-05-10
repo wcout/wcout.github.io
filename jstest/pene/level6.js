@@ -1,4 +1,4 @@
-var Level_6_colors = { sky:'blue', ground:'#ffb500', background:'#7d3788', plane:'#8d4798' };
+var Level_6_colors = { sky:'blue', ground:'#ffb500', background:'#7d3788', background2:'#b283b9', plane:'#b283b9' };
 var Level_6_param = { name:'A Comic is more fun!', outline_width:4 };
 var Level_6 = [
 {sky:-1, ground:77, obj:0},
@@ -1098,7 +1098,7 @@ var Level_6 = [
 {sky:-1, ground:475, obj:0},
 {sky:-1, ground:473, obj:0},
 {sky:-1, ground:473, obj:0},
-{sky:-1, ground:470, obj:64},
+{sky:-1, ground:470, obj:64, bg_color:'#f8e8ea'},
 {sky:-1, ground:468, obj:0},
 {sky:-1, ground:467, obj:0},
 {sky:-1, ground:465, obj:0},
@@ -1183,7 +1183,7 @@ var Level_6 = [
 {sky:-1, ground:150, obj:0},
 {sky:-1, ground:150, obj:0},
 {sky:-1, ground:149, obj:0},
-{sky:-1, ground:148, obj:64},
+{sky:-1, ground:148, obj:64, bg_color:'#fff200'},
 {sky:-1, ground:147, obj:0},
 {sky:-1, ground:146, obj:0},
 {sky:-1, ground:145, obj:0},
@@ -1254,7 +1254,7 @@ var Level_6 = [
 {sky:-1, ground:84, obj:0},
 {sky:-1, ground:84, obj:0},
 {sky:-1, ground:84, obj:0},
-{sky:-1, ground:84, obj:64},
+{sky:-1, ground:84, obj:64, bg_color:'#ff1300'},
 {sky:-1, ground:84, obj:1},
 {sky:-1, ground:84, obj:0},
 {sky:-1, ground:84, obj:0},
@@ -1296,7 +1296,7 @@ var Level_6 = [
 {sky:-1, ground:80, obj:0},
 {sky:-1, ground:80, obj:0},
 {sky:-1, ground:80, obj:0},
-{sky:-1, ground:80, obj:64},
+{sky:-1, ground:80, obj:64, bg_color:''},
 {sky:-1, ground:80, obj:0},
 {sky:-1, ground:80, obj:0},
 {sky:-1, ground:80, obj:0},

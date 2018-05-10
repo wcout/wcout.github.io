@@ -112,6 +112,7 @@ var x_missile_sound;
 var x_bomb_sound;
 var x_drop_sound;
 var x_ship_sound;
+var bady_hit_sound;
 var win_sound;
 var bg_music;
 var bg2_music;
@@ -345,7 +346,7 @@ class ObjInfo
 		this.image_width = 0;
 		this.image_height = 0;
 		this.started = false;
-		this.exploded = false;
+		this._exploded = false;
 		this.hits = 0;
 		if ( this.image )
 		{
@@ -373,6 +374,16 @@ class ObjInfo
 		return this._scale;
 	}
 
+	set exploded( exploded_ )
+	{
+		this._exploded = exploded_;
+	}
+
+	get exploded()
+	{
+		return this._exploded;
+	}
+
 	moved_stretch()
 	{
 		return Math.abs( this.x - this.x0 ) + Math.abs( this.y - this.y0 );
@@ -392,7 +403,7 @@ class ObjInfo
 			               0, this.image_width, this.image.height,
 			               x, this.y, this.image_width * this._scale, this.image.height * this._scale );
 		}
-		if ( this.exploded )
+		if ( this._exploded )
 		{
 			for ( var i = 0; i < this.image_width * this.image_height / 100; i++ )
 			{
@@ -591,6 +602,28 @@ class Phaser extends ObjInfo
 	{
 		super( O_PHASER, x, y, image );
 		this.interval = Math.floor( Math.random() * 100 + 100 );
+	}
+
+	set exploded( exploded_ )
+	{
+		super.exploded = exploded_;
+		// delete also beam if on
+		if ( this.beam )
+		{
+			for ( var i = 0; i < objects.length; i++ )
+			{
+				if ( this.beam == objects[i] )
+				{
+					objects[i].exploded = true;
+					break;
+				}
+			}
+		}
+	}
+
+	get exploded() // NOTE: this seems required, when overloading setter
+	{
+		return super.exploded;
 	}
 
 	update()
@@ -884,6 +917,7 @@ function createLandscape()
 	var y = LS[cx].sky + ( SCREEN_H - LS[cx].ground - LS[cx].sky - ship.height ) / 2;
 	spaceship = new Ship( x, y, ship );
 	objects.splice( 0, 0, spaceship );
+	spaceship.scale = 6;
 
 	// move cloud objects at end of list
 	// (so they will draw above all other objects)
@@ -901,7 +935,7 @@ function createLandscape()
 	sky_grad.addColorStop( 1, 'white' );
 
 	bg_grad = ctx.createLinearGradient( 0, 0, 0, SCREEN_H );
-	bg_grad.addColorStop( 0, 'white' );
+	bg_grad.addColorStop( 0, LS_colors.background2 ? LS_colors.background2 : 'white' );
 	bg_grad.addColorStop( 1, LS_colors.background );
 }
 
@@ -1110,7 +1144,7 @@ function drawObjects( drawDeco = false )
 		if ( o.x + o.image_width * o.scale >= ox && o.x < ox + SCREEN_W )
 		{
 			o.draw();
-			if ( !paused && o.type == O_DECO )
+			if ( frame && !paused && o.type == O_DECO )
 			{
 				o.x += ( dx - 1 );
 			}
@@ -1172,6 +1206,7 @@ function updateObjects()
 						{
 							playSound( x_ship_sound );
 							collision = true;
+							o.scale = 1;
 							o.exploded = true;
 							resetLevel();
 							return;
@@ -1255,21 +1290,16 @@ function drawBgPlane()
 	// test for "parallax scrolling" background plane
 	var xoff = Math.floor( ox / 3 );	// scrollfactor 1/3
 	fl_color( LS_colors.plane );
-//	if ( deco )
-	{
-		fl_line_style( 0, 2 ); // otherwise 'gaps' between adjacent lines (deco shines through)
-	}
 	for ( var i = 0; i < SCREEN_W; i++ )
 	{
 		if ( ox + i >= LS.length ) break;
-		var g2 = SCREEN_H - LS[ ox + i].ground;
-		var g1 = SCREEN_H - LS[ xoff + i + 3 * SCREEN_W ].ground * 2 / 3;
+		var g2 = SCREEN_H - LS[ ox + i ].ground;
+		var g1 = SCREEN_H - LS[ LS.length - xoff - i - 2 * SCREEN_W ].ground * 2 / 3;
 		if ( g2 > g1 )
 		{
-			fl_yxline( i, g1 , g2 );
+			fl_rectf( i, g1, 2, g2 - g1 );
 		}
 	}
-	fl_line_style( 0, 0 );
 }
 
 function drawLandscape()
@@ -1438,6 +1468,7 @@ function checkHits()
 								{
 									playSound( x_ship_sound );
 									collision = true;
+									o.scale = 1;
 									o.exploded = true;
 									o1.exploded = true;
 									resetLevel();
@@ -1470,6 +1501,10 @@ function checkHits()
 					{
 						playSound( x_drop_sound );
 					}
+					else if ( o1.type == O_BADY )
+					{
+						playSound( bady_hit_sound );
+					}
 					else
 					{
 						playSound( x_missile_sound );
@@ -1478,7 +1513,7 @@ function checkHits()
 				}
 				else if ( o.type == O_BOMB && ( o1.type == O_RADAR || o1.type == O_ROCKET || o1.type == O_PHASER ) )
 				{
-					if ( !rect.inside( rect1 ) ) // bomb must be inside radar (looks better)
+					if ( o1.type != O_PHASER && !rect.inside( rect1 ) ) // bomb must be inside radar (looks better)
 					{
 						continue;
 					}
@@ -1495,40 +1530,8 @@ function checkHits()
 	}
 }
 
-function update()
+function drawLevel()
 {
-	frame++;
-	requestId = window.requestAnimationFrame( update );
-	if ( !paused )
-	{
-		updateObjects();
-		checkHits();
-	}
-	// handle color change
-	var changed = false;
-	for ( var i = ox; i < ox + SCREEN_W / 2; i++ )
-	{
-		if ( LS[i].bg_color != undefined )
-		{
-			bg_grad = new Gradient( 'white', LS[i].bg_color ? LS[i].bg_color : LS_colors.background ).grad;
-			changed = true;
-		}
-		if ( LS[i].sky_color != undefined )
-		{
-			sky_grad = new Gradient( LS[i].sky_color ? LS[i].sky_color : LS_colors.sky, 'white' ).grad;
-			changed = true;
-		}
-		if ( LS[i].ground_color != undefined )
-		{
-			ground_grad = new Gradient( 'white', LS[i].ground_color ? LS[i].ground_color : LS_colors.ground ).grad;
-			changed = true;
-		}
-		if ( changed )
-		{
-			break;
-		}
-	}
-
 	fl_color( 'cyan' );
 	ctx.fillStyle = bg_grad;
 	fl_rectf( 0, 0, SCREEN_W, SCREEN_H );
@@ -1555,6 +1558,48 @@ function update()
 	fl_font( 'Arial bold', 30 );
 	fl_align();
 	drawShadowText( 'Level ' + level, 10, SCREEN_H - 30, 'white', 'gray', 1 );
+}
+
+function update()
+{
+	frame++;
+	requestId = window.requestAnimationFrame( update );
+	if ( spaceship.scale > 1 )
+	{
+		spaceship.scale = spaceship.scale - 0.1;
+	}
+	if ( !paused )
+	{
+		updateObjects();
+		checkHits();
+	}
+	// handle color change
+	var changed = false;
+	for ( var i = ox; i < ox + SCREEN_W / 2; i++ )
+	{
+		if ( LS[i].bg_color != undefined )
+		{
+			bg_grad = new Gradient( LS_colors.background2 ? LS_colors.background2 : 'white',
+			                        LS[i].bg_color ? LS[i].bg_color : LS_colors.background ).grad;
+			changed = true;
+		}
+		if ( LS[i].sky_color != undefined )
+		{
+			sky_grad = new Gradient( LS[i].sky_color ? LS[i].sky_color : LS_colors.sky, 'white' ).grad;
+			changed = true;
+		}
+		if ( LS[i].ground_color != undefined )
+		{
+			ground_grad = new Gradient( 'white', LS[i].ground_color ? LS[i].ground_color : LS_colors.ground ).grad;
+			changed = true;
+		}
+		if ( changed )
+		{
+			break;
+		}
+	}
+
+	drawLevel();
 
 	if ( !sounds )
 	{
@@ -1688,10 +1733,26 @@ async function splashScreen()
 	var scale = 2;
 	keysDown[KEY_FIRE] = false;
 	var gradient = new Gradient( 'skyblue', 'saddlebrown' );
+	var sneak_time = 2 * fps;
+	var cnt = sneak_time;
 	while ( !keysDown[KEY_FIRE] )
 	{
-		ctx.fillStyle = gradient.grad;
-		fl_rectf( 0, 0, SCREEN_W, SCREEN_H );
+		cnt++;
+		var cyc = cnt % ( fps * 15 );
+		if ( cyc == sneak_time )
+		{
+			ox = Math.floor( Math.random() * ( LS.length - SCREEN_W ) );
+		}
+		if ( cyc < sneak_time )
+		{
+			spaceship.scale = 1;
+			drawLevel();
+		}
+		else
+		{
+			ctx.fillStyle = gradient.grad;
+			fl_rectf( 0, 0, SCREEN_W, SCREEN_H );
+		}
 
 		fl_font( 'Arial bold italic', 90 );
 		ctx.save();
@@ -1714,19 +1775,22 @@ async function splashScreen()
 		drawShadowText( text, SCREEN_W / 2, SCREEN_H - 30, 'yellow', 'black', 2 );
 		fl_align();
 
-		fl_font( 'Arial bold italic', 30 );
-		drawShadowText( 'Level ' + level, 10, SCREEN_H - 30, 'white', 'gray', 1 );
+		if ( cyc >= sneak_time )
+		{
+			fl_font( 'Arial bold italic', 30 );
+			drawShadowText( 'Level ' + level, 10, SCREEN_H - 30, 'white', 'gray', 1 );
 
-		fl_color( 'white' );
-		fl_font( 'Arial', 10 );
-		fl_draw( 'v1.0', SCREEN_W - 30, SCREEN_H - 10 );
+			fl_color( 'white' );
+			fl_font( 'Arial', 10 );
+			fl_draw( 'v1.0', SCREEN_W - 30, SCREEN_H - 10 );
 
-		var w = ship.width * scale;
-		var h = ship.height * scale;
-		var x = ( SCREEN_W - w ) / 2;
-		var y = ( SCREEN_H - h ) / 2;
-		ctx.drawImage( ship, 0, 0, ship.width, ship.height,
-                     x , y + 40 , w, h );
+			var w = ship.width * scale;
+			var h = ship.height * scale;
+			var x = ( SCREEN_W - w ) / 2;
+			var y = ( SCREEN_H - h ) / 2;
+			ctx.drawImage( ship, 0, 0, ship.width, ship.height,
+			               x , y + 40 , w, h );
+		}
 		await sleep( 10 );
 		scale += 0.01;
 		if ( scale > 6 )
@@ -1795,6 +1859,7 @@ function loadSounds()
 	x_missile_sound = new Audio( 'x_missile.wav' );
 	x_drop_sound = new Audio( 'x_drop.wav' );
 	x_ship_sound = new Audio( 'x_ship.wav' );
+	bady_hit_sound = new Audio( 'bady_hit.wav' );
 	win_sound = new Audio( 'win.wav' );
 	bg_music = new bgsound( 'bg.wav' );
 	bg2_music = new bgsound( 'bg2.wav' );
