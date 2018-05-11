@@ -1,6 +1,7 @@
 * { margin:0; padding:0; }
 
 body, html {
+	height:100%;
 	color:black;
 	font-family:sans-serif;
 }
@@ -17,8 +18,6 @@ body, html {
 }
 
 canvas {
-	position:absolute;
-	top:0;
 	background-color:black;
 	display:block;
 	height:100%;
@@ -28,16 +27,10 @@ canvas {
 
 button:hover
 {
-	opacity:0.8;
 	color:blue;
 }
 
 footer {
-	font-size:170%;
-	opacity:0.1;
-	position:absolute;
-	bottom:10%;
 	width:100%;
 	text-align:center;
-	z-index:2;
 }
