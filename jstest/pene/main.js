@@ -305,8 +305,8 @@ function setLevel( l )
 	level = l;
 	paused = false;
 	completed = false;
-	keysDown[KEY_FIRE] = true; // exit splash (if currently in)
 	resetLevel( false );
+	keysDown[KEY_FIRE] = true; // exit splash (if currently in)
 }
 
 function loadValue( id, value )
