@@ -142,6 +142,7 @@ var speed_right = 0;
 var mouseWheelTimeoutId;
 var mouseRepeatTimeoutId;
 var lastEvent;
+var mouseDown = false;
 
 var stars = [];
 var shipTPM = [];
@@ -1080,6 +1081,10 @@ function stopWheel()
 
 function onEvent( e )
 {
+	if ( e.type == "mousemove" && !mouseDown )
+	{
+		return;
+	}
 	if ( e.type == "keydown" )
 	{
 		if ( !keysDown[e.keyCode] ) // this seems necessary, because a keydown event is delivered before each keyup!!
@@ -1095,8 +1100,12 @@ function onEvent( e )
 		onKeyUp( e.keyCode );
 		e.preventDefault();
 	}
-	if ( e.type == "mousedown" || e.type == "touchstart" || e.type == "wheel" )
+	if ( e.type == "mousedown" || e.type == "mousemove" || e.type == "touchstart" || e.type == "touchmove" || e.type == "wheel" )
 	{
+		if ( e.type == "mousedown" )
+		{
+			mouseDown = true;
+		}
 		var cx = spaceship.x + spaceship.width / 2 - ox;
 		var cy = spaceship.y + spaceship.height / 2;
 		cx *= ( Screen.clientWidth / SCREEN_W );
@@ -1108,7 +1117,6 @@ function onEvent( e )
 			window.clearTimeout( mouseWheelTimeoutId );
 			var dx = e.deltaX;
 			var dy = -e.deltaY;
-//			console.log( "wheel dx = %f, dy = %f", dx, dy );
 			if ( dx > 0 )
 			{
 				mx = Screen.clientWidth;
@@ -1132,7 +1140,7 @@ function onEvent( e )
 		}
 		else
 		{
-			if ( e.type == "touchstart" )
+			if ( e.type == "touchstart" || e.type == "touchmove" )
 			{
 				var rect = e.target.getBoundingClientRect();
 				mx = e.touches[0].pageX - rect.left;
@@ -1148,6 +1156,7 @@ function onEvent( e )
 				e.preventDefault();
 				lastEvent = new MouseRepeatEvent( e, mx, my );
 			}
+			window.clearTimeout( mouseRepeatTimeoutId );
 			mouseRepeatTimeoutId = window.setTimeout( onEvent, 20, e ); // simulate mouse repeat, like key repeat
 		}
 
@@ -1204,6 +1213,7 @@ function onEvent( e )
 	}
 	if ( e.type == "mouseup" || e.type == "touchend" || e.type == "mouseleave" )
 	{
+		mouseDown = false;
 		window.clearTimeout( mouseRepeatTimeoutId );
 		lastEvent  = null;
 		if ( keysDown[KEY_FIRE] )
@@ -1489,6 +1499,8 @@ async function resetLevel( wait_ = true, splash_ = false )
 	ox = 0;
 	frame = 0;
 	keysDown = [];
+	lastEvent = null;
+	mouseDown = false;
 	last_bomb_frame = 0;
 	if ( was_completed )
 	{
@@ -1915,7 +1927,9 @@ function onResourcesLoaded()
 	Screen.addEventListener( "mousedown", onEvent );
 	Screen.addEventListener( "mouseup", onEvent );
 	Screen.addEventListener( "mouseleave", onEvent );
+	Screen.addEventListener( "mousemove", onEvent );
 	Screen.addEventListener( "touchstart", onEvent );
+	Screen.addEventListener( "touchmove", onEvent );
 	Screen.addEventListener( "touchend", onEvent );
 	Screen.addEventListener( "wheel", onEvent );
 
