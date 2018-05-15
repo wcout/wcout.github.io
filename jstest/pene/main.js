@@ -64,6 +64,10 @@ const KEY_SOUND = 83;   // 's'
 
 const KEY_FULLSCREEN = 122; // F11
 
+const NormalFont = 'Arial';
+const BoldFont = 'Arial bold';
+const BoldItalicFont = 'Arial bold italic';
+
 //var _TEST_ = true;
 
 const fps = 60; // default of requestAnimationFrame()
@@ -72,6 +76,8 @@ const dxc = Math.floor( fps / ( 200 - ( fps * dx ) ) );
 
 const SCREEN_W = 800;
 const SCREEN_H = 600;
+
+const MISSILE_FIRE_TIME = 10;
 
 var Screen;
 var ctx;
@@ -131,13 +137,26 @@ var paused = false;
 var collision = false;
 var completed = false;
 var failed_count = 0;
-var repeated_right = -5;
+var repeated_right = -MISSILE_FIRE_TIME;
 var speed_right = 0;
+var mouseWheelTimeoutId;
+var mouseRepeatTimeoutId;
+var lastEvent;
 
 var stars = [];
 var shipTPM = [];
 var requestId;
 var done_count = 0;
+
+class MouseRepeatEvent
+{
+	constructor( e, x, y )
+	{
+		this.type = e.type;
+		this.x = x;
+		this.y = y;
+	}
+}
 
 class Gradient
 {
@@ -162,9 +181,9 @@ class Fl_Rect
 	}
 	intersects( r )
 	{
-		return ! ( this.x + this.w - 1 < r.x  ||
-		           this.y + this.h - 1 < r.y  ||
-	              this.x > r.x + r.w - 1     ||
+		return ! ( this.x + this.w - 1 < r.x ||
+		           this.y + this.h - 1 < r.y ||
+	              this.x > r.x + r.w - 1    ||
 		           this.y > r.y + r.h - 1 );
 	}
 	intersection_rect( r )
@@ -211,7 +230,7 @@ function fl_font( family, size )
 	{
 		f += s[2] + ' ';
 	}
-	f += size + 'px ' +  s[0];
+	f += size + 'px ' + s[0];
 	ctx.font = f;
 }
 
@@ -343,15 +362,15 @@ class ObjInfo
 		this.x0 = this.x;
 		this.y0 = this.y;
 		this._scale = 1;
-		this.image_width = 0;
-		this.image_height = 0;
+		this.width = 0;
+		this.height = 0;
 		this.started = false;
 		this._exploded = false;
 		this.hits = 0;
 		if ( this.image )
 		{
-			this.image_width = this.image.width / this.frames;
-			this.image_height = this.image.height;
+			this.width = this.image.width / this.frames;
+			this.height = this.image.height;
 		}
 	}
 
@@ -360,8 +379,8 @@ class ObjInfo
 		this.image = image;
 		this.frames = frames;
 		this.curr_frame = 0;
-		this.image_width = this.image.width / this.frames;
-		this.image_height = this.image.height;
+		this.width = this.image.width / this.frames;
+		this.height = this.image.height;
 	}
 
 	set scale( scale_ )
@@ -399,19 +418,19 @@ class ObjInfo
 		}
 		else
 		{
-			ctx.drawImage( this.image, this.image_width * this.curr_frame,
-			               0, this.image_width, this.image.height,
-			               x, this.y, this.image_width * this._scale, this.image.height * this._scale );
+			ctx.drawImage( this.image, this.width * this.curr_frame,
+			               0, this.width, this.image.height,
+			               x, this.y, this.width * this._scale, this.image.height * this._scale );
 		}
 		if ( this._exploded )
 		{
-			for ( var i = 0; i < this.image_width * this.image_height / 100; i++ )
+			for ( var i = 0; i < this.width * this.height / 100; i++ )
 			{
 				fl_color( Math.random() > 0.5 ? 'red' : 'yellow' );
-				var fw = this.image_width / 2;
-				var fh = this.image_height / 2;
-				var rx = Math.random() * this.image_width;
-				var ry = Math.random() * this.image_height;
+				var fw = this.width / 2;
+				var fh = this.height / 2;
+				var rx = Math.random() * this.width;
+				var ry = Math.random() * this.height;
 				var rw = Math.random() * fw;
 				var rh = Math.random() * fh;
 				fl_rectf( x + rx - fw / 2, this.y + ry - fh / 2, rw, rh );
@@ -419,10 +438,24 @@ class ObjInfo
 		}
 	}
 
-	update()
+	draw_at( ctx_, x, y, scale = 1 )
+	{
+		if ( this.frames == 1 && scale == 1 )
+		{
+			ctx_.drawImage( this.image, x, y );
+		}
+		else
+		{
+			ctx_.drawImage( this.image, this.width * this.curr_frame,
+			                0, this.width, this.image.height,
+			                x, y, this.width * scale, this.image.height * scale );
+		}
+	}
+
+	update( frame_delay = 10 )
 	{
 		this.cnt++;
-		if ( ( this.cnt % 10 ) == 0 && this.frames )
+		if ( ( this.cnt % frame_delay ) == 0 && this.frames )
 		{
 			this.curr_frame++;
 			if ( this.curr_frame >= this.frames )
@@ -438,15 +471,15 @@ class PhaserBeam extends ObjInfo
 	constructor( x, y, w, h )
 	{
 		super( O_PHASER_BEAM, x, y, null );
-		this.image_width = w;
-		this.image_height = h;
+		this.width = w;
+		this.height = h;
 	}
 
 	draw()
 	{
 		var x = this.x - ox;
 		ctx.fillStyle = 'red';
-		fl_rectf( this.x - ox , this.y, this.image_width, this.image_height );
+		fl_rectf( this.x - ox , this.y, this.width, this.height );
 		fl_line_style( 0, 0 );
 	}
 }
@@ -456,8 +489,8 @@ class Missile extends ObjInfo
 	constructor( x, y, w, h )
 	{
 		super( O_MISSILE, x, y, null );
-		this.image_width = w;
-		this.image_height = h;
+		this.width = w;
+		this.height = h;
 	}
 
 	draw()
@@ -467,7 +500,7 @@ class Missile extends ObjInfo
 		var alpha = 1. - this.moved_stretch() / ( SCREEN_W / 2 + 40 ); // FIXME: parameterize
 		var rgba = ( LS_colors.missile ? LS_colors.missile : 'rgba(255,255,255,' ) + alpha + ')';
 		ctx.fillStyle = rgba;
-		fl_rectf( x, this.y, this.image_width, this.image_height );
+		fl_rectf( x, this.y, this.width, this.height );
 		fl_line_style( 0, 0 );
 	}
 
@@ -491,7 +524,7 @@ class Cloud extends ObjInfo
 		if ( this.down )
 		{
 			this.y++;
-			if ( this.y + this.image_height >= SCREEN_H - LS[this.x + this.image_width / 2].ground )
+			if ( this.y + this.height >= SCREEN_H - LS[this.x + this.width / 2].ground )
 			{
 				this.down = !this.down;
 			}
@@ -499,7 +532,7 @@ class Cloud extends ObjInfo
 		else
 		{
 			this.y--;
-			if ( this.y <= LS[this.x + this.image_width / 2].sky )
+			if ( this.y <= LS[this.x + this.width / 2].sky )
 			{
 				this.down = !this.down;
 			}
@@ -521,7 +554,7 @@ class Bady extends ObjInfo
 		if ( this.down )
 		{
 			this.y++;
-			if ( this.y + this.image_height >= SCREEN_H - LS[this.x + this.image_width / 2].ground )
+			if ( this.y + this.height >= SCREEN_H - LS[this.x + this.width / 2].ground )
 			{
 				this.down = !this.down;
 			}
@@ -529,7 +562,7 @@ class Bady extends ObjInfo
 		else
 		{
 			this.y--;
-			if ( this.y <= LS[this.x + this.image_width / 2].sky )
+			if ( this.y <= LS[this.x + this.width / 2].sky )
 			{
 				this.down = !this.down;
 			}
@@ -639,8 +672,8 @@ class Phaser extends ObjInfo
 			this.started = true;
 			this.delay = 0;
 
-			var x = this.x + this.image_width / 2; // x-coord. of center
-			var y = LS[this.x + this.image_width / 2].sky;
+			var x = this.x + this.width / 2; // x-coord. of center
+			var y = LS[this.x + this.width / 2].sky;
 
 			this.beam = new PhaserBeam( x - 2, y, 4, this.y - y );
 			objects.splice( 0, 0, this.beam );
@@ -668,11 +701,16 @@ class Phaser extends ObjInfo
 
 class Ship extends ObjInfo
 {
-	constructor( x, y, image )
+	constructor( x, y, image, frames = 1 )
 	{
-		super( O_SHIP, x, y, image );
+		super( O_SHIP, x, y, image, frames );
 		this.accel = false;
 		this.decel = false;
+	}
+
+	update()
+	{
+		super.update( 30 );
 	}
 
 	draw()
@@ -686,7 +724,7 @@ class Ship extends ObjInfo
 			var y0 = this.y + 20;
 			var l = 20;
 			var x0 = this.x + Math.floor( Math.random() * 3 );
-			while ( y0 < this.y + this.image_height - 10 )
+			while ( y0 < this.y + this.height - 10 )
 			{
 				fl_xyline( x0 - ox, y0, x0 - ox + l );
 				y0 += 8;
@@ -775,7 +813,7 @@ function onDecoLoaded()
 	}
 
 	deco = brightenImage( deco, 50 );
-	var y = max_sky  + Math.floor( Math.random() * ( SCREEN_H - max_sky - max_ground ) );
+	var y = max_sky + Math.floor( Math.random() * ( SCREEN_H - max_sky - max_ground ) );
 	var x = Math.floor( Math.random() * LS.length * 2 / 3 ) + SCREEN_W / 2;
 	var obj = new ObjInfo( O_DECO, x, y, deco );
 	obj.scale = 2;
@@ -786,12 +824,12 @@ function finishedMessage()
 {
 	fl_align( 'center' );
 	var x = SCREEN_W / 2;
-	fl_font( 'Arial bold italic', 50 );
+	fl_font( BoldItalicFont, 50 );
 	drawShadowText( "** YOU DID IT! **", x, 150, 'red', 'gray' );
-	fl_font( 'Arial bold', 34 );
+	fl_font( BoldFont, 34 );
 	drawShadowText( "You succeeded to conquer all hazards\nand finally reached your destination!",
 		 x, 250, 'green', 'white' );
-	fl_font( 'Arial bold', 40 );
+	fl_font( BoldFont, 40 );
 	drawShadowText( "You are a REAL HERO!", x, 500, 'red', 'white' );
 }
 
@@ -913,9 +951,10 @@ function createLandscape()
 	}
 	// calc. initial ship position (centered between sky/ground)
 	var x = 20;
-	var cx = x + ship.width / 2;
-	var y = LS[cx].sky + ( SCREEN_H - LS[cx].ground - LS[cx].sky - ship.height ) / 2;
-	spaceship = new Ship( x, y, ship );
+	spaceship = new Ship( x, 0, ship, 2 );
+	var cx = Math.floor( x + spaceship.width / 2 );
+	var y = LS[cx].sky + ( SCREEN_H - LS[cx].ground - LS[cx].sky - spaceship.height ) / 2;
+	spaceship.y = y;
 	objects.splice( 0, 0, spaceship );
 	spaceship.scale = 6;
 
@@ -941,16 +980,16 @@ function createLandscape()
 
 function dropBomb()
 {
-	var obj = new Bomb( spaceship.x + spaceship.image_width / 2,
-	                    spaceship.y + spaceship.image_height + 20, bomb );
+	var obj = new Bomb( spaceship.x + spaceship.width / 2,
+	                    spaceship.y + spaceship.height + 20, bomb );
 	objects.splice( 0, 0, obj ); // stay behind cloud!
 	playSound( bomb_sound );
 }
 
 function fireMissile()
 {
-	var obj = new Missile( spaceship.x + spaceship.image_width + 20,
-	                       spaceship.y + spaceship.image_height / 2 + 2, 40, 3 );
+	var obj = new Missile( spaceship.x + spaceship.width + 20,
+	                       spaceship.y + spaceship.height / 2 + 2, 40, 3 );
 	objects.splice( 0, 0, obj );
 	playSound( missile_sound ); // stay behind cloud!
 }
@@ -992,7 +1031,7 @@ function onKeyDown( k )
 	}
 	if ( k == KEY_RIGHT || k == KEY_ARROW_RIGHT )
 	{
-		repeated_right = -5;
+		repeated_right = -MISSILE_FIRE_TIME;
 		if ( paused && !collision && !completed )
 		{
 			// resume game
@@ -1030,6 +1069,15 @@ function onKeyUp( k )
 	}
 }
 
+function stopWheel()
+{
+	keysDown[KEY_RIGHT] = false;
+	keysDown[KEY_LEFT] = false;
+	keysDown[KEY_UP] = false;
+	keysDown[KEY_DOWN] = false;
+}
+
+
 function onEvent( e )
 {
 	if ( e.type == "keydown" )
@@ -1047,36 +1095,68 @@ function onEvent( e )
 		onKeyUp( e.keyCode );
 		e.preventDefault();
 	}
-	if ( e.type == "mousedown" || e.type == "touchstart" )
+	if ( e.type == "mousedown" || e.type == "touchstart" || e.type == "wheel" )
 	{
-		var mx;
-		var my;
-		if ( e.type == "touchstart" )
+		var cx = spaceship.x + spaceship.width / 2 - ox;
+		var cy = spaceship.y + spaceship.height / 2;
+		cx *= ( Screen.clientWidth / SCREEN_W );
+		cy *= ( Screen.clientHeight / SCREEN_H );
+		var mx = cx;
+		var my = cy;
+		if ( e.type == "wheel" )
 		{
-			var rect = e.target.getBoundingClientRect();
-			mx = e.touches[0].pageX - rect.left;
-			my = e.touches[0].pageY - rect.top;
-			e.preventDefault();
+			window.clearTimeout( mouseWheelTimeoutId );
+			var dx = e.deltaX;
+			var dy = -e.deltaY;
+//			console.log( "wheel dx = %f, dy = %f", dx, dy );
+			if ( dx > 0 )
+			{
+				mx = Screen.clientWidth;
+			}
+			else if ( dx < 0 )
+			{
+				mx = 0;
+			}
+			if ( dy > 0 )
+			{
+				my = Screen.clientHeight;
+			}
+			else if ( dy < 0 )
+			{
+				my = 0;
+			}
+			if ( mx != cx || my != cy )
+			{
+				mouseWheelTimeoutId = window.setTimeout( stopWheel, 200 );
+			}
 		}
 		else
 		{
-			mx = e.offsetX;
-			my = e.offsetY;
+			if ( e.type == "touchstart" )
+			{
+				var rect = e.target.getBoundingClientRect();
+				mx = e.touches[0].pageX - rect.left;
+				my = e.touches[0].pageY - rect.top;
+			}
+			else
+			{
+				mx = lastEvent ? lastEvent.x : e.offsetX;
+				my = lastEvent ? lastEvent.y : e.offsetY;
+			}
+			if ( !lastEvent )
+			{
+				e.preventDefault();
+				lastEvent = new MouseRepeatEvent( e, mx, my );
+			}
+			mouseRepeatTimeoutId = window.setTimeout( onEvent, 20, e ); // simulate mouse repeat, like key repeat
 		}
-//		console.log( "mouse/touch event at %d/%d", mx, my );
-		var cx = spaceship.x + spaceship.image_width / 2 - ox;
-		var cy = spaceship.y + spaceship.image_height / 2;
-		if ( my > Screen.clientHeight * 0.67 && mx < Screen.clientWidth / 4 )
+
+//		console.log( "event '%s' at %d/%d, ship at %d/%d, delta_x: %d (%d), delta_y: %d(%d)", e.type, mx, my, cx, cy,
+//			          Math.abs( mx - cx ), Screen.clientWidth / 40, Math.abs( my - cy ), Screen.clientWidth / 30 );
+		if ( e.type != "wheel" && my > Screen.clientHeight * 0.67 && mx < Screen.clientWidth / 4 )
 		{
-			// bottom left zone = drop bomb
 			keysDown[KEY_FIRE] = true;
-			onKeyDown(KEY_FIRE);
-			return;
-		}
-		if ( my > Screen.clientHeight * 0.67 && mx > Screen.clientWidth * 0.75 && frame )
-		{
-			// bottom right zone = fire missile
-			fireMissile();
+			onKeyDown( KEY_FIRE );
 			return;
 		}
 		if ( my < Screen.clientHeight / 3 && !frame )
@@ -1090,37 +1170,49 @@ function onEvent( e )
 			if ( mx > cx )
 			{
 				keysDown[KEY_LEFT] = false;
-				keysDown[KEY_RIGHT] = true;
-				onKeyDown(KEY_RIGHT);
+				if ( !keysDown[KEY_RIGHT] )
+				{
+					keysDown[KEY_RIGHT] = true;
+					onKeyDown( KEY_RIGHT );
+				}
 			}
 			else
 			{
 				keysDown[KEY_RIGHT] = false;
-				keysDown[KEY_LEFT] = true;
-				onKeyDown(KEY_LEFT);
+				if ( !keysDown[KEY_LEFT] )
+				{
+					keysDown[KEY_LEFT] = true;
+					onKeyDown( KEY_LEFT );
+				}
 			}
 		}
-		if ( Math.abs( my - cy ) > Screen.clientWidth / 30 )
+		if ( Math.abs( my - cy ) > Screen.clientWidth / 30 && ( repeated_right > 0 || e.type == "wheel" ) )
 		{
 			if ( my > cy )
 			{
 				keysDown[KEY_UP] = false;
 				keysDown[KEY_DOWN] = true;
-				onKeyDown(KEY_DOWN);
+				onKeyDown( KEY_DOWN );
 			}
 			else
 			{
 				keysDown[KEY_DOWN] = false;
 				keysDown[KEY_UP] = true;
-				onKeyDown(KEY_UP);
+				onKeyDown( KEY_UP );
 			}
 		}
 	}
-	if ( e.type == "mouseup" || e.type == "touchend" )
+	if ( e.type == "mouseup" || e.type == "touchend" || e.type == "mouseleave" )
 	{
+		window.clearTimeout( mouseRepeatTimeoutId );
+		lastEvent  = null;
 		if ( keysDown[KEY_FIRE] )
 		{
-			onKeyUp(KEY_FIRE);
+			onKeyUp( KEY_FIRE );
+		}
+		if ( keysDown[KEY_RIGHT] )
+		{
+			onKeyUp( KEY_RIGHT );
 		}
 		keysDown[KEY_FIRE] = false;
 		keysDown[KEY_RIGHT] = false;
@@ -1143,7 +1235,7 @@ function drawObjects( drawDeco = false )
 		{
 			continue;
 		}
-		if ( o.x + o.image_width * o.scale >= ox && o.x < ox + SCREEN_W )
+		if ( o.x + o.width * o.scale >= ox && o.x < ox + SCREEN_W )
 		{
 			o.draw();
 			if ( frame && !paused && o.type == O_DECO )
@@ -1156,11 +1248,11 @@ function drawObjects( drawDeco = false )
 
 function collisionWithLandscape()
 {
-	for ( var y = 0; y < spaceship.image_height; y++ )
+	for ( var y = 0; y < spaceship.height; y++ )
 	{
-		for ( var x = 0; x < spaceship.image_width; x++ )
+		for ( var x = 0; x < spaceship.width; x++ )
 		{
-			if ( !shipTPM[ y * spaceship.image_width + x ] )
+			if ( !shipTPM[ y * spaceship.width + x ] )
 			{
 				var g = SCREEN_H - LS[ spaceship.x + x].ground;
 				if ( spaceship.y + y > g )
@@ -1189,18 +1281,18 @@ function updateObjects()
 			i--;
 			continue;
 		}
-		var cx = o.x + o.image_width / 2;
-		if ( cx >= LS.length || o.x + o.image_width < ox || o.x >= ox + SCREEN_W )
+		var cx = o.x + o.width / 2;
+		if ( cx >= LS.length || o.x + o.width < ox || o.x >= ox + SCREEN_W )
 		{
 			continue;
 		}
 		if ( o.type == O_SHIP )
 		{
 			// check for collision with landscape
-			for ( var x = 0; x < o.image_width; x++ )
+			for ( var x = 0; x < o.width; x++ )
 			{
-				if ( ( o.y + o.image_height >= SCREEN_H - LS[o.x + x].ground ) ||
-				  ( LS[o.x + x].sky >= 0 && o.y < LS[o.x + x].sky ) )
+				if ( ( o.y + o.height >= SCREEN_H - LS[o.x + x].ground ) ||
+				     ( LS[o.x + x].sky >= 0 && o.y < LS[o.x + x].sky ) )
 				{
 					if ( collisionWithLandscape() )
 					{
@@ -1216,6 +1308,7 @@ function updateObjects()
 					}
 				}
 			}
+			o.update();
 		}
 		else if ( o.type == O_ROCKET )
 		{
@@ -1224,13 +1317,13 @@ function updateObjects()
 				o.started = ( Math.random() > 0.8 );
 				if ( o.started )
 				{
-					o.setImage( rocket_launched );
+					o.setImage( rocket_launched, 3 );
 					playSound( rocket_launched_sound );
 				}
 			}
 			o.update();
 			var sky = LS[cx].sky;
-			var gone_y = sky >= 0 ? sky : -o.image_height;
+			var gone_y = sky >= 0 ? sky : -o.height;
 			if ( o.y <= gone_y )
 			{
 				o.exploded = true;
@@ -1261,7 +1354,7 @@ function updateObjects()
 			if ( ( SCREEN_H - LS[cx].ground < o.y ) ||
 			     ( o.y < LS[cx].sky ) ||
 			       o.moved_stretch() > SCREEN_W / 2 ||
-			       o.x + o.image_width * o.scale < ox || o.x >= ox + SCREEN_W )
+			       o.x + o.width * o.scale < ox || o.x >= ox + SCREEN_W )
 			{
 				objects.splice( i, 1 );
 				i--;
@@ -1310,7 +1403,7 @@ function drawLandscape()
 	var outline_width = (LS_param.outline_width != undefined) ? LS_param.outline_width : 2;
 	ctx.lineWidth = outline_width;
 	var delta = outline_width ? Math.floor( outline_width / 2 ) + 1 : 0;
-	ctx.moveTo( -delta,  SCREEN_H + delta );
+	ctx.moveTo( -delta, SCREEN_H + delta );
 	for ( var i = -delta; i < SCREEN_W + delta; i++ )
 	{
 		var x = ox + i;
@@ -1403,7 +1496,7 @@ async function resetLevel( wait_ = true, splash_ = false )
 		failed_count = 0;
 		music.stop();
 	}
-	repeated_right = -5;
+	repeated_right = -MISSILE_FIRE_TIME;
 	speed_right = 0;
 	objects = [];
 	var splash = splash_ || level > 10 || failed_count >= LIVES;
@@ -1440,7 +1533,7 @@ function checkHits()
 		{
 			continue;
 		}
-		var rect = new Fl_Rect( o.x, o.y, o.image_width, o.image_height );
+		var rect = new Fl_Rect( o.x, o.y, o.width, o.height );
 		for ( var j = 0; j < objects.length; j++ )
 		{
 			if ( i == j )
@@ -1448,7 +1541,7 @@ function checkHits()
 				continue;
 			}
 			var o1 = objects[j];
-			var rect1 = new Fl_Rect( o1.x, o1.y, o1.image_width, o1.image_height );
+			var rect1 = new Fl_Rect( o1.x, o1.y, o1.width, o1.height );
 			if ( o1.type == O_DECO || o1.type == O_CLOUD || o1.exploded )
 			{
 				continue;
@@ -1465,9 +1558,9 @@ function checkHits()
 					{
 						for ( var y = rr.y; y < rr.y + rr.h; y++ )
 						{
-							if ( !shipTPM[ y * ship.width + x ] )
+							if ( !shipTPM[ y * spaceship.width + x ] )
 							{
-								if ( typeof( _TEST_  ) == "undefined" )
+								if ( typeof( _TEST_ ) == "undefined" )
 								{
 									playSound( x_ship_sound );
 									collision = true;
@@ -1487,19 +1580,15 @@ function checkHits()
 				{
 					o1.hits++;
 					o.exploded = true;
-//					objects.splice( i, 1 ); // missile gone
-//					i--;
-//					j--; // !!!
-					if ( o1.type == O_BADY && o1.hits < 3 + Math.floor( level / 3 )  )
+					if ( o1.type == O_BADY && o1.hits < 3 + Math.floor( level / 3 ) )
 					{
-						return;
+						continue;
 					}
 					if ( o1.type == O_RADAR && o1.hits < Math.floor( level / 3 ) )
 					{
-						return;
+						continue;
 					}
 					o1.exploded = true;
-//					objects.splice( j, 1 );
 					if ( o1.type == O_DROP )
 					{
 						playSound( x_drop_sound );
@@ -1512,7 +1601,10 @@ function checkHits()
 					{
 						playSound( x_missile_sound );
 					}
-					return;
+					// move exploded object to end of list -
+					// makes explosion visible in case object was behind cloud
+					objects.push( objects.splice( j, 1 )[0] );
+					j--; // correct loop counter, because new object has now moved into index j
 				}
 				else if ( o.type == O_BOMB && ( o1.type == O_RADAR || o1.type == O_ROCKET || o1.type == O_PHASER ) )
 				{
@@ -1521,11 +1613,7 @@ function checkHits()
 						continue;
 					}
 					o1.exploded = true;
-//					objects.splice( j, 1 ); // NOTE: this has to be before object.splice( i, 1 ) - WHY?
-//					j--;
 					o.exploded = true;
-//					objects.splice( i, 1 ); // bomb gone too!
-//					i--;
 					playSound( x_bomb_sound );
 				}
 			}
@@ -1558,7 +1646,7 @@ function drawLevel()
 	drawLandscape();
 	drawObjects();
 
-	fl_font( 'Arial bold', 30 );
+	fl_font( BoldFont, 30 );
 	fl_align();
 	drawShadowText( 'Level ' + level, 10, SCREEN_H - 30, 'white', 'gray', 1 );
 }
@@ -1616,17 +1704,16 @@ function update()
 	// draw lives
 	for ( var i = 0; i < LIVES - failed_count; i++ )
 	{
-		var w = ship.width / 4;
-		var h = ship.height / 4;
+		var w = spaceship.width / 4;
+		var h = spaceship.height / 4;
 		var x = 10 + ( w + 5 ) * i;
 		var y = SCREEN_H - 20;
-		ctx.drawImage( ship, 0, 0, ship.width, ship.height,
-                     x , y , w, h );
+		spaceship.draw_at( ctx, x , y , 0.25 );
 	}
 
 	if ( LS_param.name && ox < SCREEN_W / 2 )
 	{
-		fl_font( 'Arial bold italic', Math.min( Math.floor( ox / 3 ), 40 ) );
+		fl_font( BoldItalicFont, Math.min( Math.floor( ox / 3 ), 40 ) );
 		var w = ctx.measureText( LS_param.name ).width;
 		var x = ( SCREEN_W - w ) / 2;
 		drawShadowText( LS_param.name, x, 50, 'yellow', 'black', 2 );
@@ -1642,7 +1729,7 @@ function update()
 			repeated_right++;
 			if ( repeated_right > 0 )
 			{
-				if ( spaceship.x + spaceship.image_width / 2 < ox + SCREEN_W / 2 )
+				if ( spaceship.x + spaceship.width / 2 < ox + SCREEN_W / 2 )
 				{
 					spaceship.x += dx;
 					speed_right++;
@@ -1650,9 +1737,9 @@ function update()
 				}
 			}
 		}
-		if ( k[KEY_LEFT] || k[KEY_ARROW_LEFT])
+		if ( k[KEY_LEFT] || k[KEY_ARROW_LEFT] )
 		{
-			if ( spaceship.x >= ox - spaceship.image_width / 2 )
+			if ( spaceship.x >= ox - spaceship.width / 2 )
 			{
 				spaceship.x -= dx;
 				spaceship.decel = true;
@@ -1660,7 +1747,7 @@ function update()
 		}
 		if ( k[KEY_DOWN] || k[KEY_ARROW_DOWN] )
 		{
-			if ( spaceship.y + spaceship.image_height < SCREEN_H )
+			if ( spaceship.y + spaceship.height < SCREEN_H )
 			{
 				spaceship.y += dx;
 			}
@@ -1694,7 +1781,7 @@ function update()
 		}
 		else
 		{
-			fl_font( 'Arial bold italic', 50 );
+			fl_font( BoldItalicFont, 50 );
 			fl_align( 'center' );
 			drawShadowText( collision ? "*** OUCH!! ***" : completed ?
 				"Level complete!" : "*** PAUSED ***", SCREEN_W / 2, 300, 'white', 'gray', 2 );
@@ -1702,14 +1789,14 @@ function update()
 	}
 }
 
-function getTransparencyMask( img )
+function getTransparencyMask( obj )
 {
 	var canvas = document.createElement( 'canvas' ); // temp. canvas
 	var ctx = canvas.getContext( '2d' );
-	canvas.width = img.width;
-	canvas.height = img.height;
-	ctx.drawImage( img, 0, 0 ); // write image to canvas
-	var imageData = ctx.getImageData( 0, 0, img.width, img.height ); // get image data
+	canvas.width = obj.width;
+	canvas.height = obj.height;
+	obj.draw_at( ctx, 0, 0 ); // write image to canvas
+	var imageData = ctx.getImageData( 0, 0, canvas.width, canvas.height ); // get image data
 	var data = imageData.data;
 
 	var mask = [];
@@ -1753,6 +1840,7 @@ async function splashScreen()
 		{
 			spaceship.scale = 1;
 			drawLevel();
+			updateObjects();
 			ox++;
 			if ( spaceship.x > ox )
 			{
@@ -1765,7 +1853,7 @@ async function splashScreen()
 			fl_rectf( 0, 0, SCREEN_W, SCREEN_H );
 		}
 
-		fl_font( 'Arial bold italic', 90 );
+		fl_font( BoldItalicFont, 90 );
 		ctx.save();
 		ctx.rotate( -4 * Math.PI / 180 );
 		var text = 'JScriptrator';
@@ -1775,32 +1863,32 @@ async function splashScreen()
 		ctx.restore();
 
 		fl_align( 'center' );
-		fl_font( 'Arial bold', 26 );
+		fl_font( BoldFont, 26 );
 		text = '(c) 2018 wcout';
 		ctx.textAlign = "center";
 		x = SCREEN_W / 2;
 		drawShadowText( text, x, 150, 'cyan', 'black', 2 );
 
-		fl_font( 'Arial bold italic', 40 );
+		fl_font( BoldItalicFont, 40 );
 		text = "Hit space key to start";
 		drawShadowText( text, SCREEN_W / 2, SCREEN_H - 30, 'yellow', 'black', 2 );
 		fl_align();
 
 		if ( cyc >= sneak_time )
 		{
-			fl_font( 'Arial bold italic', 30 );
+			fl_font( BoldItalicFont, 30 );
 			drawShadowText( 'Level ' + level, 10, SCREEN_H - 30, 'white', 'gray', 1 );
 
 			fl_color( 'white' );
-			fl_font( 'Arial', 10 );
+			fl_font( NormalFont, 10 );
 			fl_draw( 'v1.0', SCREEN_W - 30, SCREEN_H - 10 );
 
-			var w = ship.width * scale;
-			var h = ship.height * scale;
+			var w = spaceship.width * scale;
+			var h = spaceship.height * scale;
 			var x = ( SCREEN_W - w ) / 2;
 			var y = ( SCREEN_H - h ) / 2;
-			ctx.drawImage( ship, 0, 0, ship.width, ship.height,
-			               x , y + 40 , w, h );
+			spaceship.draw_at( ctx, x , y + 40 , scale );
+			spaceship.update();
 		}
 		await sleep( 10 );
 		scale += 0.01;
@@ -1820,14 +1908,16 @@ function onResourcesLoaded()
 {
 	createLandscape();
 
-	shipTPM = getTransparencyMask( ship );
+	shipTPM = getTransparencyMask( spaceship );
 
 	document.addEventListener( "keydown", onEvent );
 	document.addEventListener( "keyup", onEvent );
 	Screen.addEventListener( "mousedown", onEvent );
 	Screen.addEventListener( "mouseup", onEvent );
+	Screen.addEventListener( "mouseleave", onEvent );
 	Screen.addEventListener( "touchstart", onEvent );
 	Screen.addEventListener( "touchend", onEvent );
+	Screen.addEventListener( "wheel", onEvent );
 
 	splashScreen();
 }
@@ -1893,14 +1983,14 @@ function main()
 	Screen.width = window.innerWidth;
 	Screen.height = window.innerHeight;
 	var rect = new Fl_Rect( 0, 0, SCREEN_W, SCREEN_H ); // test class
-	ctx = Screen.getContext( '2d' );
+	ctx = Screen.getContext( '2d', { alpha: false } );
 	ctx.scale( Screen.width / SCREEN_W, Screen.height / SCREEN_H );
 
 	fl_color( 'black' );
 	fl_rectf( 0, 0, rect.w, rect.h );
 
 	fl_align( 'center' );
-	fl_font( 'Arial', 50 );
+	fl_font( NormalFont, 50 );
 	fl_color( 'white' );
 	fl_draw( "JScriptrator is loading...", rect.w / 2, 300 );
 	fl_align();
@@ -1916,7 +2006,6 @@ function main()
 		sounds = stored_sounds;
 	}
 	done_count = loadValue( 'done' );
-
 }
 
 main();
