@@ -120,8 +120,7 @@ var x_drop_sound;
 var x_ship_sound;
 var bady_hit_sound;
 var win_sound;
-var bg_music;
-var bg2_music;
+var bg_music = [];
 var title_music;
 var music;
 
@@ -775,6 +774,11 @@ function bgsound( src )
 	this.stop = function()
 	{
 		this.sound.pause();
+	}
+	this.reset = function()
+	{
+		this.sound.currentTime = 0; // seconds (as float value)
+//		console.log( "%s: %f, readyState = %d", this.sound.src, this.sound.currentTime, this.sound.readyState );
 	}
 }
 
@@ -1520,8 +1524,9 @@ async function resetLevel( wait_ = true, splash_ = false )
 		music.stop();
 		if ( changeMusic )
 		{
-			music = Math.random() > 0.5 ? bg_music : bg2_music;
-			music.currentTime = 0; // play from begin
+			var track = Math.floor( Math.random() * bg_music.length );
+			music = bg_music[ track ];
+			music.reset(); // play from begin
 		}
 		music.play();
 	}
@@ -1821,7 +1826,7 @@ async function splashScreen()
 		music.stop();
 	}
 	music = title_music;
-	music.currentTime = 0; // play from begin
+	music.reset(); // play from begin
 	music.play();
 
 	var scale = 2;
@@ -1968,9 +1973,11 @@ function loadSounds()
 	x_ship_sound = new Audio( 'x_ship.wav' );
 	bady_hit_sound = new Audio( 'bady_hit.wav' );
 	win_sound = new Audio( 'win.wav' );
-	bg_music = new bgsound( 'bg.wav' );
-	bg2_music = new bgsound( 'bg2.wav' );
-	title_music = new bgsound( 'title_bg.wav' );
+	title_music = new bgsound( 'title_bg.ogg' );
+	bg_music.push( new bgsound( 'bg.ogg' ) );
+	bg_music.push( new bgsound( 'bg2.ogg' ) );
+	bg_music.push( new bgsound( 'bg3.ogg' ) );
+	bg_music.push( new bgsound( 'bg4.ogg' ) );
 }
 
 function sleep( ms )
