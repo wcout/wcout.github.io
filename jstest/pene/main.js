@@ -136,6 +136,7 @@ var ground_grad;
 var paused = false;
 var collision = false;
 var completed = false;
+var end_frame = 0;
 var failed_count = 0;
 var repeated_right = -MISSILE_FIRE_TIME;
 var speed_right = 0;
@@ -148,6 +149,9 @@ var stars = [];
 var shipTPM = [];
 var requestId;
 var done_count = 0;
+var startZoneLength = 0;
+var endZoneLength = 0;
+
 
 class MouseRepeatEvent
 {
@@ -849,17 +853,19 @@ function createLandscape()
 		var s = LS[0].sky;
 		var g = LS[0].ground;
 		var obj = 0;
-		var item = { sky: s, ground:g, obj:obj };
-		for ( var i = 0; i < SCREEN_W / 2; i++ )
+		var item = { sky:s, ground:g, obj:obj };
+		startZoneLength = Math.floor( SCREEN_W / 2 );
+		for ( var i = 0; i < startZoneLength; i++ )
 		{
 			LS.splice( 0, 0, item ); // inserts at begin
 		}
 		s = LS[LS.length - 1].sky;
 		g = LS[LS.length - 1].ground;
-		item = { sky: s, ground:g, obj:obj };
-		for ( var i = 0; i < SCREEN_W / 2; i++ )
+		item = { sky:s, ground:g, obj:obj };
+		endZoneLength = SCREEN_W + 100;
+		for ( var i = 0; i < endZoneLength; i++ )
 		{
-			LS.push( 0, 0, item );
+			LS.push( item );
 		}
 		LS_param.added_scrollzones = true;
 	}
@@ -950,6 +956,7 @@ function createLandscape()
 			console.log( "Unknown object type %d", o );
 		}
 	}
+
 	// calc. initial ship position (centered between sky/ground)
 	var x = 20;
 	spaceship = new Ship( x, 0, ship, 2 );
@@ -1027,6 +1034,7 @@ function onKeyDown( k )
 		}
 		else
 		{
+			end_frame = 0;
 			music.stop();
 		}
 	}
@@ -1166,12 +1174,6 @@ function onEvent( e )
 		{
 			keysDown[KEY_FIRE] = true;
 			onKeyDown( KEY_FIRE );
-			return;
-		}
-		if ( my < Screen.clientHeight / 3 && !frame )
-		{
-			// top zone in title menu = go fullscreen
-			fullscreen( Screen );
 			return;
 		}
 		if ( Math.abs( mx - cx ) > Screen.clientWidth / 40 )
@@ -1399,7 +1401,7 @@ function drawBgPlane()
 	{
 		if ( ox + i >= LS.length ) break;
 		var g2 = SCREEN_H - LS[ ox + i ].ground;
-		var g1 = SCREEN_H - LS[ LS.length - xoff - i - 2 * SCREEN_W ].ground * 2 / 3;
+		var g1 = SCREEN_H - LS[ LS.length - xoff - i - startZoneLength - endZoneLength - 1 ].ground * 2 / 3;
 		if ( g2 > g1 )
 		{
 			fl_rectf( i, g1, 2, g2 - g1 );
@@ -1410,22 +1412,18 @@ function drawBgPlane()
 function drawLandscape()
 {
 	ctx.beginPath();
-	var outline_width = (LS_param.outline_width != undefined) ? LS_param.outline_width : 2;
+	var outline_width = ( LS_param.outline_width != undefined ) ? LS_param.outline_width : 2;
 	ctx.lineWidth = outline_width;
-	var delta = outline_width ? Math.floor( outline_width / 2 ) + 1 : 0;
+	var delta = outline_width ? Math.floor( ( outline_width + 1 ) / 2 ) : 0;
 	ctx.moveTo( -delta, SCREEN_H + delta );
-	for ( var i = -delta; i < SCREEN_W + delta; i++ )
+	for ( var i = -delta; i <= SCREEN_W + delta; i++ )
 	{
-		var x = ox + i;
-		var g = -1;
-		if ( x >= 0 && x < LS.length )
-		{
-			g = LS[x].ground;
-		}
+		var x = Math.min( Math.max( 0, ox + i ), LS.length - 1 );
+		var g = LS[x].ground - delta;
 		ctx.lineTo( i, SCREEN_H - g );
 	}
 	ctx.lineTo( SCREEN_W + delta, SCREEN_H + delta );
-	ctx.closePath();
+//	ctx.closePath();
 	ctx.fillStyle = ground_grad;
 	ctx.fill();
 	if ( outline_width )
@@ -1434,38 +1432,30 @@ function drawLandscape()
 		ctx.stroke();
 	}
 
-/*
-	var outline_width = (LS_param.outline_width != undefined) ? LS_param.outline_width : 2;
-	ctx.lineWidth = outline_width;
-	var delta = outline_width ? Math.floor( outline_width / 2 ) + 1 : 0;
-*/
-	ctx.beginPath();
-	ctx.moveTo( -delta, -delta );
-	for ( var i = -delta; i < SCREEN_W + delta; i++ )
+	if ( max_sky > 0 )
 	{
-		var x = ox + i;
-		var s = -1;
-		if ( x >= 0 && x < LS.length )
+/*
+		var outline_width = ( LS_param.outline_width != undefined ) ? LS_param.outline_width : 2;
+		ctx.lineWidth = outline_width;
+		var delta = outline_width ? Math.floor( ( outline_width + 1 ) / 2 ) : 0;
+*/
+		ctx.beginPath();
+		ctx.moveTo( -delta, -delta );
+		for ( var i = -delta; i <= SCREEN_W + delta; i++ )
 		{
-			s = LS[x].sky;
-		}
-		if ( s < 0 && x < LS.length )
-		{
-			ctx.moveTo( i, s );
-		}
-		else
-		{
+			var x = Math.min( Math.max( 0, ox + i ), LS.length - 1 );
+			var s = LS[x].sky - delta;
 			ctx.lineTo( i, s );
 		}
-	}
-	ctx.lineTo( SCREEN_W + delta, -delta );
-	ctx.closePath();
-	ctx.fillStyle = sky_grad;
-	ctx.fill();
-	if ( outline_width )
-	{
-		ctx.strokeStyle = LS_colors.outline ? LS_colors.outline : 'black';
-		ctx.stroke();
+		ctx.lineTo( SCREEN_W + delta, -delta );
+//		ctx.closePath();
+		ctx.fillStyle = sky_grad;
+		ctx.fill();
+		if ( outline_width )
+		{
+//			ctx.strokeStyle = LS_colors.outline ? LS_colors.outline : 'black';
+			ctx.stroke();
+		}
 	}
 	fl_line_style( 0, 0 );
 }
@@ -1477,6 +1467,7 @@ async function resetLevel( wait_ = true, splash_ = false )
 		return;
 	}
 	var was_completed = completed;
+	end_frame = 0;
 	var changeMusic = completed || !wait_;
 	onKeyDown( KEY_PAUSE ); // trigger pause
 	if ( wait_ )
@@ -1781,7 +1772,7 @@ function update()
 	}
 	if ( ox + SCREEN_W >= LS.length )
 	{
-		ox = LS.length - SCREEN_W;
+		ox = LS.length - SCREEN_W - 1;
 		completed = true;
 		resetLevel();
 	}
@@ -1793,7 +1784,8 @@ function update()
 		}
 		else
 		{
-			fl_font( BoldItalicFont, 50 );
+			end_frame++;
+			fl_font( BoldItalicFont, Math.min( end_frame * 2 + 10, 80 ) );
 			fl_align( 'center' );
 			drawShadowText( collision ? "*** OUCH!! ***" : completed ?
 				"Level complete!" : "*** PAUSED ***", SCREEN_W / 2, 300, 'white', 'gray', 2 );
