@@ -2092,7 +2092,6 @@ function main()
 		sounds = stored_sounds;
 	}
 	done_count = loadValue( 'done' );
-	done_count = 2;
 }
 
 main();
