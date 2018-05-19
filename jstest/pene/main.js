@@ -351,6 +351,32 @@ function saveValue( id, value )
 	}
 }
 
+class Medal
+{
+	constructor( r )
+	{
+		this.r = r;
+	}
+	draw( ctx, x, y, scale_y = 1 )
+	{
+		ctx.save();
+		ctx.beginPath();
+//		ctx.arc( x, y, this.r, 0, Math.PI * 2, true );
+		ctx.ellipse( x, y, this.r, this.r * scale_y, 0, 0, Math.PI * 2, true );
+		ctx.fillStyle = 'gold';
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = 'black';
+		ctx.fill();
+		ctx.stroke();
+		ctx.fillStyle = 'green';
+		ctx.font = this.r - 6 + 'px Arial';
+		var text = "HERO";
+		var width = ctx.measureText( text ).width;
+		var height = ctx.measureText( "M" ).width * 1.2;
+		ctx.fillText( text, x - width / 2, y + height / 2 );
+		ctx.restore();
+	}
+}
 
 class ObjInfo
 {
@@ -546,10 +572,12 @@ class Cloud extends ObjInfo
 
 class Bady extends ObjInfo
 {
-	constructor( x, y, image, frames )
+	constructor( x, y, image, frames, accel = 1 )
 	{
 		super( O_BADY, x, y, image, frames );
 		this.down = Math.random() > 0.5;
+		this.accel = accel;
+		this.yoff = 1;
 	}
 
 	update()
@@ -557,18 +585,28 @@ class Bady extends ObjInfo
 		super.update();
 		if ( this.down )
 		{
-			this.y++;
+			this.y += this.yoff;
+			if ( this.yoff < 2 * dx )
+			{
+				this.yoff *= this.accel;
+			}
 			if ( this.y + this.height >= SCREEN_H - LS[this.x + this.width / 2].ground )
 			{
 				this.down = !this.down;
+				this.yoff = 1;
 			}
 		}
 		else
 		{
-			this.y--;
+			this.y -= this.yoff;
+			if ( this.yoff < 2 * dx )
+			{
+				this.yoff *= this.accel;
+			}
 			if ( this.y <= LS[this.x + this.width / 2].sky )
 			{
 				this.down = !this.down;
+				this.yoff = 1;
 			}
 		}
 	}
@@ -584,7 +622,7 @@ class Bomb extends ObjInfo
 
 	update()
 	{
-		this.x += Math.ceil( this.speed * dx );
+		this.x += this.speed * dx;
 		this.y += dx;
 		this.speed /= 1.03;
 	}
@@ -604,10 +642,13 @@ class Rocket extends ObjInfo
 		super.update();
 		if ( this.started )
 		{
-			this.y -= Math.floor( this.yoff );
+			this.y -= this.yoff;
 			if ( ( this.cnt % 2 ) == 0 )
 			{
-				this.yoff *= this.accel;
+				if ( this.yoff < 2 * dx )
+				{
+					this.yoff *= this.accel;
+				}
 			}
 		}
 	}
@@ -627,8 +668,11 @@ class Drop extends ObjInfo
 		super.update();
 		if ( this.started )
 		{
-			this.y += Math.floor( this.yoff );
-			this.yoff *= this.accel;
+			this.y += this.yoff;
+			if ( this.yoff < 2 * dx )
+			{
+				this.yoff *= this.accel;
+			}
 		}
 	}
 }
@@ -916,13 +960,13 @@ function createLandscape()
 		}
 		if ( o == O_ROCKET )
 		{
-			var accel = 1 + Math.random() / 50;
+			var accel = 1 + Math.random() / ( 90 / Math.min( Math.max( done_count, 1 ), 3 ) );
 			var obj = new Rocket( i - rocket.width / 2, SCREEN_H - LS[i].ground - rocket.height, rocket, accel );
 			objects.push( obj );
 		}
 		else if ( o == O_DROP )
 		{
-			var accel = 1 + Math.random() / 70;
+			var accel = 1 + Math.random() / ( 90 / Math.min( Math.max( done_count, 1 ), 3 ) );
 			var obj = new Drop( i - drop.width / 2, LS[i].sky, drop, accel );
 			objects.push( obj );
 		}
@@ -938,7 +982,8 @@ function createLandscape()
 			var frames = 4;
 			var w = bady.width / frames;
 			var h = SCREEN_H - LS[i].sky - LS[i].ground - bady.height;
-			var obj = new Bady( i - w / 2, Math.floor( Math.random() * h ) + LS[i].sky, bady, frames );
+			var accel = 1 + Math.random() / ( 120 / Math.min( Math.max( done_count, 1 ), 3 ) );
+			var obj = new Bady( i - w / 2, Math.floor( Math.random() * h ) + LS[i].sky, bady, frames, accel );
 			objects.push( obj );
 		}
 		else if ( o == O_CLOUD )
@@ -1006,16 +1051,27 @@ function fireMissile()
 	playSound( missile_sound ); // stay behind cloud!
 }
 
+function resize( canvas )
+{
+	var displayWidth = canvas.clientWidth;
+	var displayHeight = canvas.clientHeight;
+	if ( canvas.width != displayWidth || canvas.height != displayHeight )
+	{
+		console.log( "resize %d x %d => %d x %d", canvas.width, canvas.height, displayWidth, displayHeight );
+		Screen.width = displayWidth;
+		Screen.height = displayHeight;
+		if ( ctx )
+		{
+			ctx.setTransform( 1, 0, 0, 1, 0, 0 );
+			ctx.scale( Screen.width / SCREEN_W, Screen.height / SCREEN_H );
+		}
+	}
+}
+
 function onResize()
 {
 	console.log( "onResize: %d x %d", window.innerWidth, window.innerHeight );
-	if ( ctx )
-	{
-		ctx.setTransform( 1, 0, 0, 1, 0, 0 );
-		Screen.width = window.innerWidth;
-		Screen.height = window.innerHeight;
-		ctx.scale( Screen.width / SCREEN_W, Screen.height / SCREEN_H );
-	}
+	resize( Screen );
 }
 
 function onKeyDown( k )
@@ -1286,6 +1342,14 @@ function collisionWithLandscape()
 	return false;
 }
 
+function shouldStartObject( obj )
+{
+	var cx = Math.floor( obj.x + obj.width / 2 );
+	var h = Math.max( SCREEN_H - LS[cx].ground - LS[cx].sky, SCREEN_H / 4 );
+	var dist = obj.x - spaceship.x;
+	return ( dist >= 0 && dist <= h ) || ( dist < 0  && Math.abs( dist ) < h / 2 )
+}
+
 function updateObjects()
 {
 	for ( var i = 0; i < objects.length; i++ )
@@ -1297,7 +1361,7 @@ function updateObjects()
 			i--;
 			continue;
 		}
-		var cx = o.x + o.width / 2;
+		var cx = Math.floor( o.x + o.width / 2 );
 		if ( cx >= LS.length || o.x + o.width < ox || o.x >= ox + SCREEN_W )
 		{
 			continue;
@@ -1328,7 +1392,7 @@ function updateObjects()
 		}
 		else if ( o.type == O_ROCKET )
 		{
-			if ( !o.started && Math.abs( o.x - spaceship.x ) < SCREEN_W / 2 )
+			if ( !o.started && shouldStartObject( o ) )
 			{
 				o.started = ( Math.random() > 0.8 );
 				if ( o.started )
@@ -1349,7 +1413,7 @@ function updateObjects()
 		}
 		else if ( o.type == O_DROP )
 		{
-			if ( !o.started && Math.abs( o.x - spaceship.x ) < SCREEN_W / 2 )
+			if ( !o.started && shouldStartObject( o ) )
 			{
 				o.started = ( Math.random() > .98 );
 				if ( o.started )
@@ -1661,6 +1725,7 @@ function drawLevel()
 
 function update()
 {
+	resize( Screen );
 	frame++;
 	requestId = window.requestAnimationFrame( update );
 	if ( spaceship.scale > 1 )
@@ -1830,6 +1895,7 @@ async function splashScreen()
 	music.play();
 
 	var scale = 2;
+	var medal = new Medal( 14 );
 	keysDown[KEY_FIRE] = false;
 	var gradient = new Gradient( 'skyblue', 'saddlebrown' );
 	var sneak_time = 2 * fps;
@@ -1837,6 +1903,7 @@ async function splashScreen()
 	var sx = spaceship.x;
 	while ( !keysDown[KEY_FIRE] )
 	{
+		resize( Screen );
 		cnt++;
 		var cyc = cnt % ( fps * 15 );
 		if ( cyc == sneak_time )
@@ -1898,7 +1965,13 @@ async function splashScreen()
 			var y = ( SCREEN_H - h ) / 2;
 			spaceship.draw_at( ctx, x , y + 40 , scale );
 			spaceship.update();
+
+			for ( var i = 0; i < Math.min( done_count, 16 ); i++ )
+			{
+				medal.draw( ctx, 30 + 5 * i, 510, ( Screen.width / Screen.height ) / ( SCREEN_W / SCREEN_H ) );
+			}
 		}
+
 		await sleep( 10 );
 		scale += 0.01;
 		if ( scale > 6 )
@@ -2019,6 +2092,7 @@ function main()
 		sounds = stored_sounds;
 	}
 	done_count = loadValue( 'done' );
+	done_count = 2;
 }
 
 main();
