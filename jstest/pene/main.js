@@ -30,6 +30,8 @@
 
 */
 //"use strict";
+const VERSION = 'v1.0';
+const PROGRAM = 'JScriptrator';
 
 // object id's
 const O_ROCKET = 1;
@@ -71,8 +73,7 @@ const BoldItalicFont = 'Arial bold italic';
 //var _TEST_ = true;
 
 const fps = 60; // default of requestAnimationFrame()
-const dx = Math.floor( 200 / fps ); // desired scroll speed is 200 px/sec.
-const dxc = Math.floor( fps / ( 200 - ( fps * dx ) ) );
+const dx = ( 200 / fps ); // desired scroll speed is 200 px/sec.
 
 const SCREEN_W = 800;
 const SCREEN_H = 600;
@@ -393,6 +394,7 @@ class ObjInfo
 		this.x0 = this.x;
 		this.y0 = this.y;
 		this._scale = 1;
+		this._scale_y = 1;
 		this.width = 0;
 		this.height = 0;
 		this.started = false;
@@ -417,6 +419,12 @@ class ObjInfo
 	set scale( scale_ )
 	{
 		this._scale = scale_;
+		this._scale_y = scale_;
+	}
+
+	set scale_y( scale_y )
+	{
+		this._scale_y = scale_y;
 	}
 
 	get scale()
@@ -451,7 +459,7 @@ class ObjInfo
 		{
 			ctx.drawImage( this.image, this.width * this.curr_frame,
 			               0, this.width, this.image.height,
-			               x, this.y, this.width * this._scale, this.image.height * this._scale );
+			               x, this.y, this.width * this._scale, this.image.height * this._scale_y );
 		}
 		if ( this._exploded )
 		{
@@ -612,8 +620,8 @@ class Bomb extends ObjInfo
 
 	update()
 	{
-		this.x += Math.ceil( this.speed * dx );
-		this.y += dx;
+		this.x += this.speed * dx;
+		this.y += Math.max( ( this.speed / 2 ) * dx, dx );
 		this.speed /= 1.03;
 	}
 }
@@ -851,6 +859,7 @@ function onDecoLoaded()
 	var x = Math.floor( Math.random() * LS.length * 2 / 3 ) + SCREEN_W / 2;
 	var obj = new ObjInfo( O_DECO, x, y, deco );
 	obj.scale = 2;
+//	obj.scale_y = 2 * ( Screen.width / Screen.height ) / ( SCREEN_W / SCREEN_H );
 	objects.push( obj );
 }
 
@@ -1003,12 +1012,12 @@ function createLandscape()
 	}
 
 	ground_grad = ctx.createLinearGradient( 0, SCREEN_H - max_ground, 0, SCREEN_H );
-	ground_grad.addColorStop( 0, 'white' );
+	ground_grad.addColorStop( 0, LS_colors.ground2 ? LS_colors.ground2 : 'white' );
 	ground_grad.addColorStop( 1, LS_colors.ground );
 
 	sky_grad = ctx.createLinearGradient( 0, 0, 0, max_sky );
 	sky_grad.addColorStop( 0, LS_colors.sky );
-	sky_grad.addColorStop( 1, 'white' );
+	sky_grad.addColorStop( 1, LS_colors.sky2 ? LS_colors.sky2 : 'white' );
 
 	bg_grad = ctx.createLinearGradient( 0, 0, 0, SCREEN_H );
 	bg_grad.addColorStop( 0, LS_colors.background2 ? LS_colors.background2 : 'white' );
@@ -1037,8 +1046,9 @@ function onResize()
 	if ( ctx )
 	{
 		ctx.setTransform( 1, 0, 0, 1, 0, 0 );
+		var ratio = window.innerWidth / window.innerHeight;
 		Screen.width = window.innerWidth;
-		Screen.height = window.innerHeight;
+		Screen.height = ratio < 1 || ratio > 2 ? window.innerWidth / ( SCREEN_W / SCREEN_H ) : window.innerHeight;
 		ctx.scale( Screen.width / SCREEN_W, Screen.height / SCREEN_H );
 	}
 }
@@ -1125,6 +1135,22 @@ function stopWheel()
 	keysDown[KEY_DOWN] = false;
 }
 
+function key_down( keyCode )
+{
+	if ( !keysDown[keyCode] ) // this seems necessary, because a keydown event is delivered before each keyup!!
+	{
+		onKeyDown( keyCode );
+	}
+	keysDown[keyCode] = true;
+	e.preventDefault();
+}
+
+function key_up( keyCode )
+{
+	keysDown[keyCode] = false;
+	onKeyUp( keyCode );
+	e.preventDefault();
+}
 
 function onEvent( e )
 {
@@ -1305,12 +1331,12 @@ function collisionWithLandscape()
 		{
 			if ( !shipTPM[ y * spaceship.width + x ] )
 			{
-				var g = SCREEN_H - LS[ spaceship.x + x].ground;
+				var g = SCREEN_H - LS[Math.floor(spaceship.x) + x].ground;
 				if ( spaceship.y + y > g )
 				{
 					return true;
 				}
-				var s = LS[ spaceship.x + x].sky;
+				var s = LS[Math.floor(spaceship.x) + x].sky;
 				if ( spaceship.y + y < s )
 				{
 					return true;
@@ -1353,8 +1379,9 @@ function updateObjects()
 			// check for collision with landscape
 			for ( var x = 0; x < o.width; x++ )
 			{
-				if ( ( o.y + o.height >= SCREEN_H - LS[o.x + x].ground ) ||
-				     ( LS[o.x + x].sky >= 0 && o.y < LS[o.x + x].sky ) )
+				var o_x = Math.floor( o.x );
+				if ( ( o.y + o.height >= SCREEN_H - LS[o_x + x].ground ) ||
+				     ( LS[o_x + x].sky >= 0 && o.y < LS[o_x + x].sky ) )
 				{
 					if ( collisionWithLandscape() )
 					{
@@ -1824,9 +1851,8 @@ function update()
 
 	if ( !paused || completed )
 	{
-		var delta = ( frame % dxc == 0 );
-		ox += ( dx + delta );
-		spaceship.x += ( dx + delta );
+		ox += Math.round( dx );
+		spaceship.x += dx;
 	}
 	if ( ox + SCREEN_W >= LS.length )
 	{
@@ -1919,7 +1945,7 @@ async function splashScreen()
 		fl_font( BoldItalicFont, 90 );
 		ctx.save();
 		ctx.rotate( -4 * Math.PI / 180 );
-		var text = 'JScriptrator';
+		var text = PROGRAM;
 		var w = ctx.measureText( text ).width;
 		var x = ( SCREEN_W - w ) / 2;
 		drawShadowText( text, x, 120, 'red', 'darkgray', 4 );
@@ -1944,7 +1970,7 @@ async function splashScreen()
 
 			fl_color( 'white' );
 			fl_font( NormalFont, 10 );
-			fl_draw( 'v1.0', SCREEN_W - 25, 15 );
+			fl_draw( VERSION, SCREEN_W - 25, 15 );
 
 			var w = spaceship.width * scale;
 			var h = spaceship.height * scale;
@@ -2049,17 +2075,18 @@ function sleep( ms )
 
 function main()
 {
-	console.log( "dx = %d, dxc = %d", dx, dxc );
+	console.log( "dx = %d", dx );
 	loadSounds();
 	loadImages();
 
 	window.addEventListener( 'resize', onResize );
 	Screen = document.getElementById( 'viewport' );
-	Screen.width = window.innerWidth;
-	Screen.height = window.innerHeight;
-	var rect = new Fl_Rect( 0, 0, SCREEN_W, SCREEN_H ); // test class
+//	Screen.width = window.innerWidth;
+//	Screen.height = window.innerHeight;
+//	var rect = new Fl_Rect( 0, 0, SCREEN_W, SCREEN_H ); // test class
 	ctx = Screen.getContext( '2d', { alpha: false } );
-	ctx.scale( Screen.width / SCREEN_W, Screen.height / SCREEN_H );
+//	ctx.scale( Screen.width / SCREEN_W, Screen.height / SCREEN_H );
+	onResize();
 
 	fl_color( 'black' );
 	fl_rectf( 0, 0, rect.w, rect.h );
@@ -2067,7 +2094,7 @@ function main()
 	fl_align( 'center' );
 	fl_font( NormalFont, 50 );
 	fl_color( 'white' );
-	fl_draw( "JScriptrator is loading...", rect.w / 2, 300 );
+	fl_draw( PROGRAM + " is loading...", rect.w / 2, 300 );
 	fl_align();
 
 	var stored_level = loadValue( 'level' );

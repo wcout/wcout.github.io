@@ -1,5 +1,5 @@
-var Level_3_colors = { sky:'#5e4a6a', ground:'#6e0700', background:'#000047', outline:'white' };
-var Level_3_param = { name:'The wet cavern', deco:'./deco/neptun.png', stars:true };
+var Level_3_colors = { sky2:'#93859b', sky:'#29202f', ground:'maroon', background:'#000047', background2:'#8c8cab', ground2:'#442222', outline:'black' };
+var Level_3_param = { name:'The wet cavern', deco:'./deco/neptun.png', outline_width:1, stars:true };
 var Level_3 = [
 {sky:174, ground:45, obj:0},
 {sky:174, ground:44, obj:0},

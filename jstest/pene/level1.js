@@ -1,4 +1,4 @@
-var Level_1_colors = { sky:'blue', ground:'#73371d', background:'#af9232', plane:'#dfc262', missile:'rgba(255,0,0,' };
+var Level_1_colors = { sky:'blue', ground:'#73371d', ground2:'#a17967', background:'#af9232', background2:'#c9b575', plane:'#dfc262', missile:'rgba(255,0,0,' };
 var Level_1_param = { name:'Flashback from good old Speccy!', outline_width:0, deco:'./deco/saturn.png' };
 var Level_1 = [
 {sky:-1, ground:63, obj:0},

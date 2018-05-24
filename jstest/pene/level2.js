@@ -1,5 +1,5 @@
-var Level_2_colors = { sky:'#009100', ground:'#00ff00', background:'#0000ff' };
-var Level_2_param = { name:'The blue cavern', deco:'./deco/earth.png' };
+var Level_2_colors = { sky:'blue', sky2:'lightblue', ground:'blue', ground2:'lightblue', background:'#0000ff', background2:'#545476', outline:'lightblue' };
+var Level_2_param = { name:'The blue cavern', deco:'./deco/earth.png', outline_width:0, stars:true };
 var Level_2 = [
 {sky:82, ground:94, obj:0},
 {sky:82, ground:94, obj:0},
