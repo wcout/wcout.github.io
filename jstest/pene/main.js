@@ -1040,7 +1040,7 @@ function onResize()
 		ctx.setTransform( 1, 0, 0, 1, 0, 0 );
 		var ratio = window.innerWidth / window.innerHeight;
 		Screen.width = window.innerWidth;
-		Screen.height = ratio < 1 || ratio > 2 ? window.innerWidth / ( SCREEN_W / SCREEN_H ) : window.innerHeight;
+		Screen.height = ratio < 1 || ratio > 2.1 ? window.innerWidth / ( SCREEN_W / SCREEN_H ) : window.innerHeight;
 		ctx.scale( Screen.width / SCREEN_W, Screen.height / SCREEN_H );
 	}
 }
