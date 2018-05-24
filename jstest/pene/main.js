@@ -2075,12 +2075,12 @@ function main()
 	onResize();
 
 	fl_color( 'black' );
-	fl_rectf( 0, 0, rect.w, rect.h );
+	fl_rectf( 0, 0, SCREEN_W, SCREEN_H );
 
 	fl_align( 'center' );
 	fl_font( NormalFont, 50 );
 	fl_color( 'white' );
-	fl_draw( PROGRAM + " is loading...", rect.w / 2, 300 );
+	fl_draw( PROGRAM + " is loading...", SCREEN_W / 2, 300 );
 	fl_align();
 
 	var stored_level = loadValue( 'level' );
