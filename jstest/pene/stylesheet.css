@@ -17,24 +17,6 @@ body, html {
 	z-index:2;
 }
 
-#up, #down, #left, #right, #down2
-{
-	width:15%;
-	height:50px;
-}
-
-#fire
-{
-	width:30%;
-	height:50px;
-}
-
-#fire2
-{
-	width:80%;
-	height:50px;
-}
-
 canvas {
 	background-color:black;
 	display:block;

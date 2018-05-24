@@ -394,7 +394,6 @@ class ObjInfo
 		this.x0 = this.x;
 		this.y0 = this.y;
 		this._scale = 1;
-		this._scale_y = 1;
 		this.width = 0;
 		this.height = 0;
 		this.started = false;
@@ -419,12 +418,6 @@ class ObjInfo
 	set scale( scale_ )
 	{
 		this._scale = scale_;
-		this._scale_y = scale_;
-	}
-
-	set scale_y( scale_y )
-	{
-		this._scale_y = scale_y;
 	}
 
 	get scale()
@@ -459,7 +452,7 @@ class ObjInfo
 		{
 			ctx.drawImage( this.image, this.width * this.curr_frame,
 			               0, this.width, this.image.height,
-			               x, this.y, this.width * this._scale, this.image.height * this._scale_y );
+			               x, this.y, this.width * this._scale, this.image.height * this._scale );
 		}
 		if ( this._exploded )
 		{
@@ -859,7 +852,6 @@ function onDecoLoaded()
 	var x = Math.floor( Math.random() * LS.length * 2 / 3 ) + SCREEN_W / 2;
 	var obj = new ObjInfo( O_DECO, x, y, deco );
 	obj.scale = 2;
-//	obj.scale_y = 2 * ( Screen.width / Screen.height ) / ( SCREEN_W / SCREEN_H );
 	objects.push( obj );
 }
 
@@ -1135,6 +1127,8 @@ function stopWheel()
 	keysDown[KEY_DOWN] = false;
 }
 
+// possible entry point for html keyboard
+// e.g. button onkeydown='key_down(KEY_FIRE)'
 function key_down( keyCode )
 {
 	if ( !keysDown[keyCode] ) // this seems necessary, because a keydown event is delivered before each keyup!!
@@ -1142,14 +1136,14 @@ function key_down( keyCode )
 		onKeyDown( keyCode );
 	}
 	keysDown[keyCode] = true;
-	e.preventDefault();
 }
 
+// possible entry point for html keyboard
+// e.g. button onkeyup='key_up(KEY_FIRE)'
 function key_up( keyCode )
 {
 	keysDown[keyCode] = false;
 	onKeyUp( keyCode );
-	e.preventDefault();
 }
 
 function onEvent( e )
@@ -1160,17 +1154,12 @@ function onEvent( e )
 	}
 	if ( e.type == "keydown" )
 	{
-		if ( !keysDown[e.keyCode] ) // this seems necessary, because a keydown event is delivered before each keyup!!
-		{
-			onKeyDown( e.keyCode );
-		}
-		keysDown[e.keyCode] = true;
+		key_down( e.keyCode );
 		e.preventDefault();
 	}
 	if ( e.type == "keyup" )
 	{
-		keysDown[e.keyCode] = false;
-		onKeyUp( e.keyCode );
+		key_up( e.keyCode );
 		e.preventDefault();
 	}
 	if ( e.type == "mousedown" || e.type == "mousemove" || e.type == "touchstart" || e.type == "touchmove" || e.type == "wheel" )
@@ -1331,12 +1320,13 @@ function collisionWithLandscape()
 		{
 			if ( !shipTPM[ y * spaceship.width + x ] )
 			{
-				var g = SCREEN_H - LS[Math.floor(spaceship.x) + x].ground;
+				var sx = Math.floor( spaceship.x ) + x;
+				var g = SCREEN_H - LS[ sx ].ground;
 				if ( spaceship.y + y > g )
 				{
 					return true;
 				}
-				var s = LS[Math.floor(spaceship.x) + x].sky;
+				var s = LS[ sx ].sky;
 				if ( spaceship.y + y < s )
 				{
 					return true;
@@ -2081,11 +2071,7 @@ function main()
 
 	window.addEventListener( 'resize', onResize );
 	Screen = document.getElementById( 'viewport' );
-//	Screen.width = window.innerWidth;
-//	Screen.height = window.innerHeight;
-//	var rect = new Fl_Rect( 0, 0, SCREEN_W, SCREEN_H ); // test class
 	ctx = Screen.getContext( '2d', { alpha: false } );
-//	ctx.scale( Screen.width / SCREEN_W, Screen.height / SCREEN_H );
 	onResize();
 
 	fl_color( 'black' );
