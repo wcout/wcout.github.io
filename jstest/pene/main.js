@@ -72,8 +72,8 @@ const BoldItalicFont = 'Arial bold italic';
 
 //var _TEST_ = true;
 
-const fps = 60; // default of requestAnimationFrame()
-const dx = ( 200 / fps ); // desired scroll speed is 200 px/sec.
+const FPS = 60; // default of requestAnimationFrame()
+const DX = ( 200 / FPS ); // desired scroll speed is 200 px/sec.
 
 const SCREEN_W = 800;
 const SCREEN_H = 600;
@@ -153,6 +153,8 @@ var requestId;
 var done_count = 0;
 var startZoneLength = 0;
 var endZoneLength = 0;
+var lastTime;
+var dx = DX; // dynamically corrected dx
 
 
 class MouseRepeatEvent
@@ -1435,14 +1437,18 @@ function updateObjects()
 	for ( var i = 0; i < objects.length; i++ )
 	{
 		var o = objects[i];
+		var cx = Math.floor( o.x + o.width / 2 );
+		if ( cx < 0 || cx < ox - SCREEN_W / 2 ) // Performance: get rid of objects too far left
+		{
+			o.exploded = true;
+		}
 		if ( o.exploded )
 		{
 			objects.splice( i, 1 );
 			i--;
 			continue;
 		}
-		var cx = Math.floor( o.x + o.width / 2 );
-		if ( cx >= LS.length || o.x + o.width < ox || o.x >= ox + SCREEN_W )
+		if ( cx > ox + SCREEN_W + SCREEN_W / 2 ) // Performance: update only objects near viewport
 		{
 			continue;
 		}
@@ -1461,7 +1467,6 @@ function updateObjects()
 					return;
 				}
 			}
-			o.update();
 		}
 		else if ( o.type == O_ROCKET )
 		{
@@ -1474,14 +1479,11 @@ function updateObjects()
 					playSound( rocket_launched_sound );
 				}
 			}
-			o.update();
 			var sky = LS[cx].sky;
 			var gone_y = sky >= 0 ? sky : -o.height;
 			if ( o.y <= gone_y )
 			{
 				o.exploded = true;
-//				objects.splice( i, 1 );
-//				i--;
 			}
 		}
 		else if ( o.type == O_DROP )
@@ -1494,7 +1496,6 @@ function updateObjects()
 					playSound( drop_sound );
 				}
 			}
-			o.update();
 			if ( o.y > SCREEN_H - LS[cx].ground - o.image.height / 2 )
 			{
 				objects.splice( i, 1 );
@@ -1503,7 +1504,6 @@ function updateObjects()
 		}
 		else if ( o.type == O_MISSILE )
 		{
-			o.update();
 			if ( ( SCREEN_H - LS[cx].ground < o.y ) ||
 			     ( o.y < LS[cx].sky ) ||
 			       o.moved_stretch() > SCREEN_W / 2 ||
@@ -1515,18 +1515,13 @@ function updateObjects()
 		}
 		else if ( o.type == O_BOMB )
 		{
-			o.update();
 			if ( o.y > SCREEN_H - LS[cx].ground - o.image.height / 2 )
 			{
 				objects.splice( i, 1 );
 				i--;
 			}
 		}
-		else
-		{
-			// O_RADAR, O_BADY, O_CLOUD, O_PHASER
-			o.update();
-		}
+		o.update();
 	}
 }
 
@@ -1618,7 +1613,7 @@ async function resetLevel( wait_ = true, splash_ = false )
 		{
 			playSound( win_sound );
 		}
-		else
+		else if ( !completed )
 		{
 			failed_count++;
 		}
@@ -1678,6 +1673,10 @@ function checkHits()
 		{
 			continue;
 		}
+		if ( o.x > ox + SCREEN_W + SCREEN_W / 2 ) // Performance: check only objects near viewport
+		{
+			continue;
+		}
 		for ( var j = 0; j < objects.length; j++ )
 		{
 			if ( i == j )
@@ -1692,6 +1691,10 @@ function checkHits()
 			if ( o1.type == O_BOMB && ( frame - last_bomb_frame ) <= BOMB_LOCK_DELAY )
 			{
 				// don't count bomb in initial drop position as collision!
+				continue;
+			}
+			if ( o1.x > ox + SCREEN_W + SCREEN_W / 2 ) // Performance: check only objects near viewport
+			{
 				continue;
 			}
 			if ( o.intersects( o1 ) ) // by default only test rectangle intersection for collision check (speed)
@@ -1801,6 +1804,13 @@ function drawLevel()
 
 function update()
 {
+	// calculate delta time correction factor
+	var now = Date.now();
+	var dtf = ( now - lastTime ) / ( 1000 / FPS );
+	dtf = Math.min( Math.max( 0.5, dtf ), 2 ); // limit range
+	dx = DX * dtf;
+	lastTime = now;
+
 	frame++;
 	requestId = window.requestAnimationFrame( update );
 	// zoomout animation
@@ -1973,13 +1983,13 @@ async function splashScreen()
 	var medal = new Medal( 14 );
 	keysDown[KEY_FIRE] = false;
 	var gradient = new Gradient( 'skyblue', 'saddlebrown' );
-	var sneak_time = 2 * fps;
+	var sneak_time = 2 * FPS;
 	var cnt = sneak_time;
 	var sx = spaceship.x;
 	while ( !keysDown[KEY_FIRE] )
 	{
 		cnt++;
-		var cyc = cnt % ( fps * 15 );
+		var cyc = cnt % ( FPS * 15 );
 		if ( cyc == sneak_time )
 		{
 			ox = Math.floor( Math.random() * ( LS.length - 2 * SCREEN_W ) );
@@ -2058,6 +2068,7 @@ async function splashScreen()
 	music.stop();
 	playSound( drop_sound );
 	document.querySelector( 'footer' ).style.display = 'none';
+	lastTime = Date.now();
 	requestId = window.requestAnimationFrame( update );
 	resetLevel( false );
 }
@@ -2134,7 +2145,7 @@ function sleep( ms )
 
 function main()
 {
-	console.log( "dx = %d", dx );
+	console.log( "dx = %f", dx );
 	loadSounds();
 	loadImages();
 
