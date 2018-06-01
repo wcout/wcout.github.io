@@ -1438,7 +1438,7 @@ function updateObjects()
 	{
 		var o = objects[i];
 		var cx = Math.floor( o.x + o.width / 2 );
-		if ( cx < 0 || cx < ox - SCREEN_W / 2 ) // Performance: get rid of objects too far left
+		if ( frame && ( cx < 0 || cx < ox - SCREEN_W / 2 ) ) // Performance: get rid of objects too far left
 		{
 			o.exploded = true;
 		}
