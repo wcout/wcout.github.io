@@ -135,6 +135,7 @@ var sky_grad;
 var bg_grad;
 var ground_grad;
 
+var loaded = false;
 var paused = false;
 var collision = false;
 var completed = false;
@@ -338,12 +339,11 @@ function setLevel( l )
 
 function loadValue( id, value )
 {
-	var value;
 	if ( typeof( Storage ) != "undefined" )
 	{
-		value = window.localStorage.getItem( id );
+		return window.localStorage.getItem( id );
 	}
-	return value;
+	return null;
 }
 
 function saveValue( id, value )
@@ -862,10 +862,7 @@ function onDecoLoaded()
 	// (obviously onDecoLoaded() can somehow be activated twice)
 	for ( var i = 0; i < objects.length; i++ )
 	{
-		if ( objects[i].type == O_DECO )
-		{
-			return;
-		}
+		if ( objects[i].type == O_DECO ) return;
 	}
 
 	deco = brightenImage( deco, 50 );
@@ -1075,10 +1072,7 @@ function onKeyDown( k )
 	}
 	if ( k == KEY_PAUSE && frame )
 	{
-		if ( paused && ( collision || completed ) )
-		{
-			return;
-		}
+		if ( paused && ( collision || completed ) ) return;
 		paused = !paused;
 		if ( !paused )
 		{
@@ -1103,21 +1097,18 @@ function onKeyDown( k )
 
 function onKeyUp( k )
 {
-	if ( paused || collision )
-	{
-		return;
-	}
+	if ( paused || collision ) return;
 	if ( k == KEY_SOUND )
 	{
 		if ( frame )
 		{
 			sounds = !sounds;
-			saveValue( 'sounds', sounds );
+			saveValue( 'sounds', sounds + 1 );
 		}
 		else
 		{
 			tune = !tune;
-			saveValue( 'tune', tune );
+			saveValue( 'tune', tune + 1 );
 			!tune && music.stop();
 			tune && music.play();
 		}
@@ -1169,10 +1160,7 @@ function key_up( keyCode )
 
 function onEvent( e )
 {
-	if ( e.type == "mousemove" && !mouseDown )
-	{
-		return;
-	}
+	if ( e.type == "mousemove" && !mouseDown ) return;
 	if ( e.type == "keydown" )
 	{
 		key_down( e.keyCode );
@@ -1527,8 +1515,7 @@ function updateObjects()
 
 function drawBgPlane()
 {
-	if ( max_sky >= 0 )
-		return;
+	if ( max_sky >= 0 ) return;
 
 	// test for "parallax scrolling" background plane
 	var xoff = Math.floor( ox / 3 );	// scrollfactor 1/3
@@ -1598,10 +1585,8 @@ function drawLandscape()
 
 async function resetLevel( wait_ = true, splash_ = false )
 {
-	if ( paused )
-	{
-		return;
-	}
+	if ( paused ) return;
+
 	var was_completed = completed;
 	end_frame = 0;
 	var changeMusic = completed || !wait_;
@@ -1847,10 +1832,7 @@ function update()
 			ground_grad = new Gradient( 'white', LS[i].ground_color ? LS[i].ground_color : LS_colors.ground ).grad;
 			changed = true;
 		}
-		if ( changed )
-		{
-			break;
-		}
+		if ( changed ) break;
 	}
 
 	drawLevel();
@@ -2073,7 +2055,7 @@ async function splashScreen()
 	resetLevel( false );
 }
 
-function onResourcesLoaded()
+function run()
 {
 	createLandscape();
 
@@ -2115,7 +2097,7 @@ function loadImages()
 	phaser_active.src = 'phaser_active.gif';
 	drop = new Image();
 	drop.src = 'drop.gif';
-	drop.onload = onResourcesLoaded; // needed to have the image dimensions available!
+	drop.onload = function() { loaded = true; } // needed to have the image dimensions available!
 }
 
 function loadSounds()
@@ -2143,7 +2125,7 @@ function sleep( ms )
 	return new Promise( resolve => setTimeout( resolve, ms ) );
 }
 
-function main()
+async function main()
 {
 	console.log( "dx = %f", dx );
 	loadSounds();
@@ -2171,14 +2153,19 @@ function main()
 	var stored_sounds = loadValue( 'sounds' );
 	if ( stored_sounds )
 	{
-		sounds = stored_sounds;
+		sounds = stored_sounds - 1;
 	}
 	var stored_tune = loadValue( 'tune' );
 	if ( stored_tune )
 	{
-		tune = stored_tune;
+		tune = stored_tune - 1;
 	}
 	done_count = loadValue( 'done' );
+	while ( !loaded )
+	{
+		await sleep( 10 );
+	}
+	run();
 }
 
 main();
