@@ -30,7 +30,7 @@
 
 */
 //"use strict";
-const VERSION = 'v1.0';
+const VERSION = 'v1.1';
 const PROGRAM = 'JScriptrator';
 
 // object id's
@@ -64,6 +64,7 @@ const KEY_ARROW_DOWN = 65;
 const KEY_FIRE = 32;    // space
 const KEY_SOUND = 83;   // 's'
 
+const KEY_MODE = 112; // F1
 const KEY_FULLSCREEN = 122; // F11
 
 const NormalFont = 'Arial';
@@ -110,6 +111,7 @@ var level = 1;
 var objects = [];
 var sounds = true;
 var tune = true;
+var classic = false;
 
 // sounds
 var drop_sound;
@@ -130,10 +132,13 @@ var music;
 var max_ground = 0;
 var max_sky = 0;
 
-// gradients
+// gradients/current level colors
 var sky_grad;
 var bg_grad;
 var ground_grad;
+var bg_color;
+var sky_color;
+var ground_color;
 
 var loaded = false;
 var paused = false;
@@ -886,11 +891,27 @@ function finishedMessage()
 	drawShadowText( "You are a REAL HERO!", x, 500, 'red', 'white' );
 }
 
+function setupMode()
+{
+	// all non-live changes needed for mode change
+	if ( classic )
+	{
+		bg_grad = new Gradient( bg_color, bg_color ).grad;
+	}
+	else
+	{
+		bg_grad = new Gradient( LS_colors.background2 ? LS_colors.background2 : 'white', bg_color ).grad;
+	}
+}
+
 function createLandscape()
 {
 	LS = eval( "Level_" + level ); // assign from variable 'Level_1'
 	LS_colors = eval( "Level_" + level + "_colors" );
 	LS_param = eval( "Level_" + level + "_param" );
+	bg_color = LS_colors.background;
+	sky_color = LS_colors.sky;
+	ground_color = LS_colors.ground;
 	max_ground = -1;
 	max_sky = -1;
 	deco = null;
@@ -1029,9 +1050,7 @@ function createLandscape()
 	sky_grad.addColorStop( 0, LS_colors.sky );
 	sky_grad.addColorStop( 1, LS_colors.sky2 ? LS_colors.sky2 : 'white' );
 
-	bg_grad = ctx.createLinearGradient( 0, 0, 0, SCREEN_H );
-	bg_grad.addColorStop( 0, LS_colors.background2 ? LS_colors.background2 : 'white' );
-	bg_grad.addColorStop( 1, LS_colors.background );
+	setupMode();
 }
 
 function dropBomb()
@@ -1069,6 +1088,12 @@ function onKeyDown( k )
 	{
 		console.log( "going fullscreen" );
 		fullscreen( Screen );
+	}
+	if ( k == KEY_MODE )
+	{
+		classic = !classic;
+		saveValue( 'mode', classic + 1 );
+		setupMode();
 	}
 	if ( k == KEY_PAUSE && frame )
 	{
@@ -1515,7 +1540,7 @@ function updateObjects()
 
 function drawBgPlane()
 {
-	if ( max_sky >= 0 ) return;
+	if ( classic || max_sky >= 0 ) return;
 
 	// test for "parallax scrolling" background plane
 	var xoff = Math.floor( ox / 3 );	// scrollfactor 1/3
@@ -1536,6 +1561,7 @@ function drawLandscape()
 {
 	ctx.beginPath();
 	var outline_width = ( LS_param.outline_width != undefined ) ? LS_param.outline_width : 2;
+	if ( classic && !outline_width ) outline_width = 2;
 	ctx.lineWidth = outline_width;
 	var delta = outline_width ? Math.floor( ( outline_width + 1 ) / 2 ) : 0;
 	ctx.moveTo( -delta, SCREEN_H + delta );
@@ -1548,10 +1574,12 @@ function drawLandscape()
 	ctx.lineTo( SCREEN_W + delta, SCREEN_H + delta );
 //	ctx.closePath();
 	ctx.fillStyle = ground_grad;
-	ctx.fill();
+	if ( !classic ) ctx.fill();
 	if ( outline_width )
 	{
-		ctx.strokeStyle = LS_colors.outline ? LS_colors.outline : 'black';
+		var c = classic ? LS_colors.ground : LS_colors.outline ? LS_colors.outline : 'black';
+		if ( c == bg_color ) c = LS_colors.outline ? LS_colors.outline : 'white';
+		ctx.strokeStyle = c;
 		ctx.stroke();
 	}
 
@@ -1573,10 +1601,12 @@ function drawLandscape()
 		ctx.lineTo( SCREEN_W + delta, -delta );
 //		ctx.closePath();
 		ctx.fillStyle = sky_grad;
-		ctx.fill();
+		if ( !classic ) ctx.fill();
 		if ( outline_width )
 		{
-//			ctx.strokeStyle = LS_colors.outline ? LS_colors.outline : 'black';
+			var c = classic ? LS_colors.sky : LS_colors.outline ? LS_colors.outline : 'black';
+			if ( c == bg_color ) c = LS_colors.outline ? LS_colors.outline : 'white';
+			ctx.strokeStyle = c;
 			ctx.stroke();
 		}
 	}
@@ -1759,11 +1789,11 @@ function drawMute()
 
 function drawLevel()
 {
-	fl_color( 'cyan' );
+	fl_color( bg_color );
 	ctx.fillStyle = bg_grad;
 	fl_rectf( 0, 0, SCREEN_W, SCREEN_H );
 
-	if ( LS_param.stars )
+	if ( !classic && LS_param.stars )
 	{
 		fl_color( 'yellow' );
 		var sx = Math.floor( ox / 10 );
@@ -1776,7 +1806,7 @@ function drawLevel()
 		}
 	}
 
-	drawObjects( true ); // deco only
+	if ( !classic ) drawObjects( true ); // deco only
 
 	drawBgPlane();
 	drawLandscape();
@@ -1818,18 +1848,32 @@ function update()
 	{
 		if ( LS[i].bg_color != undefined )
 		{
-			bg_grad = new Gradient( LS_colors.background2 ? LS_colors.background2 : 'white',
-			                        LS[i].bg_color ? LS[i].bg_color : LS_colors.background ).grad;
+			var c = LS[i].bg_color ? LS[i].bg_color : LS_colors.background;
+			if ( c != bg_color )
+			{
+				bg_color = c;
+				setupMode();
+			}
 			changed = true;
 		}
 		if ( LS[i].sky_color != undefined )
 		{
-			sky_grad = new Gradient( LS[i].sky_color ? LS[i].sky_color : LS_colors.sky, 'white' ).grad;
+			var c = LS[i].sky_color ? LS[i].sky_color : LS_colors.sky;
+			if ( c != sky_color )
+			{
+				sky_color = c;
+				sky_grad = new Gradient( sky_color, 'white' ).grad;
+			}
 			changed = true;
 		}
 		if ( LS[i].ground_color != undefined )
 		{
-			ground_grad = new Gradient( 'white', LS[i].ground_color ? LS[i].ground_color : LS_colors.ground ).grad;
+			var c = LS[i].ground_color ? LS[i].ground_color : LS_colors.ground;
+			if ( c != ground_color )
+			{
+				ground_color = c;
+				ground_grad = new Gradient( 'white', ground_color ).grad;
+			}
 			changed = true;
 		}
 		if ( changed ) break;
@@ -1991,7 +2035,7 @@ async function splashScreen()
 		}
 		else
 		{
-			ctx.fillStyle = gradient.grad;
+			ctx.fillStyle = classic ? 'skyblue' : gradient.grad;
 			fl_rectf( 0, 0, SCREEN_W, SCREEN_H );
 		}
 
@@ -2159,6 +2203,11 @@ async function main()
 	if ( stored_tune )
 	{
 		tune = stored_tune - 1;
+	}
+	var stored_mode = loadValue( 'mode' );
+	if ( stored_mode )
+	{
+		classic = stored_mode - 1;
 	}
 	done_count = loadValue( 'done' );
 	while ( !loaded )
