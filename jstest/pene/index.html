@@ -15,7 +15,7 @@
 		<script src="level9.js"></script>
 		<script src="level10.js"></script>
 	</head>
-	<body>
+	<body onload="document.getElementById('soundVolume').value=getSoundVolume(); document.getElementById('tuneVolume').value=getTuneVolume();">
 		<canvas id="viewport">Get yourself a recent browser!</canvas>
 		<script src="main.js"></script>
 		<button id="fullscreen" onClick="fullscreen(Screen)">Full screen</button>
@@ -26,6 +26,7 @@
 			<p>
 				<button onclick="resetGameStats()">Reset game state</button>
 				<button onclick="key_down(KEY_MODE); key_up(KEY_MODE)">Toggle classic mode</button>
+				<button onclick="key_down(KEY_MISSION); key_up(KEY_MISSION)">Toggle mission mode</button>
 			</p>
 			<p>
 				Change to level (use only for cheating ;):
@@ -42,6 +43,14 @@
 				<button onclick="setLevel(9)">level 9</button>
 				<button onclick="setLevel(10)">level 10</button>
 			</p>
+			<div>
+				<p>Sound volume %:</p>
+				<input id="soundVolume" type="range" min="0" max="100" value="100" onchange="setSoundVolume(this.value)">
+			</div>
+			<div>
+				<p>Tune volume %:</p>
+				<input id="tuneVolume" type="range" min="0" max="100" value="100" onchange="setTuneVolume(this.value)">
+			</div>
 			<p>
 				<a href="https://github.com/wcout/JScriptrator">GitHub Repo</a>
 			</p>
