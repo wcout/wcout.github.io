@@ -30,7 +30,7 @@
 
 */
 //"use strict";
-const VERSION = 'v1.2';
+const VERSION = 'v1.3';
 const PROGRAM = 'JScriptrator';
 
 // object id's
@@ -80,6 +80,7 @@ const DX = ( 200 / FPS ); // desired scroll speed is 200 px/sec.
 
 const SCREEN_W = 800;
 const SCREEN_H = 600;
+const SCREEN_ASPECT = ( SCREEN_W / SCREEN_H );
 
 const MISSILE_FIRE_TIME = 10;
 const BOMB_LOCK_DELAY = 30;
@@ -536,9 +537,9 @@ class ObjInfo
 		}
 	}
 
-	draw_at( ctx_, x, y, scale = 1 )
+	draw_at( ctx_, x, y, scale_ = 1 )
 	{
-		if ( this.frames == 1 && scale == 1 )
+		if ( this.frames == 1 && scale_ == 1 )
 		{
 			ctx_.drawImage( this.image, Math.floor( x ), Math.floor( y ) );
 		}
@@ -548,7 +549,7 @@ class ObjInfo
 			//       (e.g. on title screen)
 			ctx_.drawImage( this.image, this.width * this.curr_frame,
 			                0, this.width, this.image.height,
-			                x, y, this.width * scale, this.image.height * scale );
+			                x, y, this.width * scale_, this.image.height * scale_ );
 		}
 	}
 
@@ -591,6 +592,7 @@ class Missile extends ObjInfo
 		super( O_MISSILE, x, y, null );
 		this.width = w;
 		this.height = h;
+		this.max_width = w;
 	}
 
 	draw()
@@ -600,7 +602,7 @@ class Missile extends ObjInfo
 		var alpha = 1. - this.moved_stretch() / ( SCREEN_W / 2 + 40 ); // FIXME: parameterize
 		var rgba = ( LS_colors.missile ? LS_colors.missile : 'rgba(255,255,255,' ) + alpha + ')';
 		ctx.fillStyle = rgba;
-		fl_rectf( x, this.y, this.width, this.height );
+		fl_rectf( x, this.y, this.max_width, this.height );
 		fl_line_style( 0, 0 );
 	}
 
@@ -1215,7 +1217,7 @@ function onResize()
 		ctx.setTransform( 1, 0, 0, 1, 0, 0 );
 		var ratio = window.innerWidth / window.innerHeight;
 		Screen.width = window.innerWidth;
-		Screen.height = ratio < 1 || ratio > 2.3 ? window.innerWidth / ( SCREEN_W / SCREEN_H ) : window.innerHeight;
+		Screen.height = ratio < 1 || ratio > 2.3 ? window.innerWidth / SCREEN_ASPECT : window.innerHeight;
 		ctx.scale( Screen.width / SCREEN_W, Screen.height / SCREEN_H );
 	}
 }
@@ -1652,7 +1654,7 @@ function updateObjects()
 					playSound( drop_sound );
 				}
 			}
-			if ( o.y > SCREEN_H - LS[cx].ground - o.image.height / 2 )
+			if ( o.y + o.height / 2 > SCREEN_H - LS[cx].ground )
 			{
 				objects.splice( i, 1 );
 				i--;
@@ -1660,22 +1662,49 @@ function updateObjects()
 		}
 		else if ( o.type == O_MISSILE )
 		{
-			if ( ( SCREEN_H - LS[cx].ground < o.y ) ||
-			     ( o.y < LS[cx].sky ) ||
-			       o.moved_stretch() > SCREEN_W / 2 ||
-			       o.x + o.width * o.scale < ox || o.x >= ox + SCREEN_W )
+			if ( o.y + o.height > SCREEN_H - LS[cx].ground  ||
+			     o.y < LS[cx].sky                           ||
+			     o.moved_stretch() > SCREEN_W / 2           ||
+			     o.x + o.width < ox || o.x >= ox + SCREEN_W )
 			{
 				objects.splice( i, 1 );
 				i--;
+			}
+			else
+			{
+				// special handling, to limit length of missile beam
+				// when hitting landscape..
+				o.update();
+				for ( var width = 0; width < o.width; width += 2 )
+				{
+					var rx = Math.floor( o.x + width );
+					if ( o.y + o.height > SCREEN_H - LS[rx].ground ||
+				     o.y < LS[rx].sky )
+					{
+						o.max_width = width;
+						o.exploded = true;
+						break;
+					}
+				}
+				continue;
 			}
 		}
 		else if ( o.type == O_BOMB )
 		{
-			if ( o.y > SCREEN_H - LS[cx].ground - o.image.height / 2 )
+			// special handling, to better handle contact with
+			// steep slopes of landscape..
+			o.update();
+			for ( var width = 0; width < o.width; width += 2 )
 			{
-				objects.splice( i, 1 );
-				i--;
+				var rx = Math.floor( o.x + width );
+				if ( o.y + o.height > SCREEN_H - LS[rx].ground ||
+			     o.y < LS[rx].sky )
+				{
+					o.exploded = true;
+					break;
+				}
 			}
+			continue;
 		}
 		o.update();
 	}
@@ -1882,10 +1911,11 @@ function checkHits()
 						}
 					}
 				}
-				else if ( o.type == O_MISSILE && ( o1.type == O_ROCKET || o1.type == O_DROP ||
-				                                   o1.type == O_RADAR  || o1.type == O_BADY ||
-				                                   o1.type == O_PHASER || o1.type == O_BUDDY ) )
+				else if ( o.type == O_MISSILE )
 				{
+					if ( !( o1.type == O_ROCKET || o1.type == O_DROP ||
+				           o1.type == O_RADAR  || o1.type == O_BADY ||
+				           o1.type == O_PHASER || o1.type == O_BUDDY ) ) continue;
 					if ( o1.type == O_BUDDY )
 					{
 						collision = true;
@@ -1921,9 +1951,10 @@ function checkHits()
 					objects.push( objects.splice( j, 1 )[0] );
 					j--; // correct loop counter, because new object has now moved into index j
 				}
-				else if ( o.type == O_BOMB && ( o1.type == O_RADAR || o1.type == O_ROCKET ||
-				                                o1.type == O_PHASER || o1.type == O_BUDDY) )
+				else if ( o.type == O_BOMB )
 				{
+					if ( !( o1.type == O_RADAR  || o1.type == O_ROCKET ||
+				           o1.type == O_PHASER || o1.type == O_BUDDY ) ) continue;
 					if ( o1.type == O_BUDDY )
 					{
 						collision = true;
@@ -1946,7 +1977,7 @@ function checkHits()
 
 function drawMute()
 {
-	var text = '\u{1f507}'; // unicode character 'speaker with cancellation stroke'
+//	var text = '\u{1f507}'; // unicode character 'speaker with cancellation stroke'
 	var x = SCREEN_W - 40;
 	var y = SCREEN_H - 40;
 //	ctx.fillText( text, x, y );
@@ -2256,7 +2287,7 @@ async function splashScreen()
 
 			for ( var i = 0; i < Math.min( done_count, 16 ); i++ )
 			{
-				medal.draw( ctx, 30 + 5 * i, 510, ( Screen.width / Screen.height ) / ( SCREEN_W / SCREEN_H ) );
+				medal.draw( ctx, 30 + 5 * i, 510, ( Screen.width / Screen.height ) / SCREEN_ASPECT );
 			}
 
 			!tune && drawMute();

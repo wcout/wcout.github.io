@@ -24,7 +24,7 @@
 				<u>KEYBOARD CONTROLS:</u><br><b>o/p</b> = left/right, <b>q/a</b> = up/down, <b>p</b> (short press) = fire missile, <b>space</b>= drop bomb, <b>9</b> = pause
 			</p>
 			<p>
-				<button onclick="resetGameStats()">Reset game state</button>
+				<button onclick="if (window.confirm('Reset game stats?')) resetGameStats()">Reset game state</button>
 				<button onclick="key_down(KEY_MODE); key_up(KEY_MODE)">Toggle classic mode</button>
 				<button onclick="key_down(KEY_MISSION); key_up(KEY_MISSION)">Toggle mission mode</button>
 			</p>
