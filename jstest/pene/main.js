@@ -105,6 +105,7 @@ var cloud;
 var phaser;
 var phaser_active;
 var deco;
+var ImageList = [];
 
 var spaceship; // ship object
 var mybuddy;
@@ -2330,6 +2331,7 @@ function loadImage( src )
 {
 	var image = new Image();
 	image.src = src;
+	ImageList.push( image );
 	return image;
 }
 
@@ -2347,7 +2349,6 @@ function loadImages()
 	phaser = loadImage( 'phaser.gif' );
 	phaser_active = loadImage( 'phaser_active.gif' );
 	drop = loadImage( 'drop.gif' );
-	drop.onload = function() { loaded = true; } // needed to have the image dimensions available!
 }
 
 function loadSounds()
@@ -2406,8 +2407,14 @@ async function main()
 	setSoundVolume( loadValue( 'soundVolume', 100 ) );
 	setTuneVolume( loadValue( 'tuneVolume', 100 ) );
 
+	// wait for all images having loaded
 	while ( !loaded )
 	{
+		loaded = true;
+		for ( var i = 0; i < ImageList.length; i++ )
+		{
+			if ( !ImageList[i].complete ) loaded = false;
+		}
 		await sleep( 10 );
 	}
 	run();
