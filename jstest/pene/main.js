@@ -1196,8 +1196,8 @@ function createLandscape()
 
 function dropBomb()
 {
-	var obj = new Bomb( spaceship.x + spaceship.width / 2 - 30,
-	                    spaceship.y + spaceship.height - 10, bomb ); // FIXME: hardcoded offsets
+	var obj = new Bomb( spaceship.x + spaceship.width / 2 - 20,
+	                    spaceship.y + spaceship.height - 5, bomb ); // FIXME: hardcoded offsets
 	objects.splice( 0, 0, obj ); // stay behind cloud!
 	playSound( bomb_sound );
 }
@@ -1205,7 +1205,7 @@ function dropBomb()
 function fireMissile()
 {
 	var obj = new Missile( spaceship.x + spaceship.width + 20,
-	                       spaceship.y + spaceship.height / 2 + 2, 40, 3 ); // FIXME: hardcoded offsets
+	                       spaceship.y + spaceship.height / 2 + 5, 30, 3 ); // FIXME: hardcoded offsets
 	objects.splice( 0, 0, obj );
 	playSound( missile_sound ); // stay behind cloud!
 }
@@ -1601,7 +1601,7 @@ function updateObjects()
 		{
 			o.exploded = true;
 		}
-		if ( o.exploded )
+		if ( o.exploded && !( collision && o.type == O_SHIP ) )
 		{
 			objects.splice( i, 1 );
 			i--;
@@ -1611,7 +1611,7 @@ function updateObjects()
 		{
 			continue;
 		}
-		if ( o.type == O_SHIP )
+		if ( o.type == O_SHIP && !collision )
 		{
 			// check for collision with landscape
 			if ( collisionWithLandscapeCheck( o ) )
@@ -1629,7 +1629,7 @@ function updateObjects()
 		}
 		else if ( o.type == O_ROCKET )
 		{
-			if ( !o.started )
+			if ( !o.started && !collision )
 			{
 				o.started = ( Math.random() < shouldStartObject( o ) );
 				if ( o.started )
@@ -1647,7 +1647,7 @@ function updateObjects()
 		}
 		else if ( o.type == O_DROP )
 		{
-			if ( !o.started )
+			if ( !o.started && !collision )
 			{
 				o.started = ( Math.random() < shouldStartObject( o ) );
 				if ( o.started )
@@ -1858,7 +1858,7 @@ function checkHits()
 	for ( var i = 0; i < objects.length; i++ )
 	{
 		var o = objects[i];
-		if ( o.type == O_DECO || o.type == O_CLOUD || o.exploded )
+		if ( o.type == O_DECO || o.type == O_CLOUD || ( o.exploded && !( collision && o.type == O_SHIP ) ) )
 		{
 			continue;
 		}
@@ -1886,91 +1886,92 @@ function checkHits()
 			{
 				continue;
 			}
-			if ( o.intersects( o1 ) ) // by default only test rectangle intersection for collision check (speed)
+			if ( !o.intersects( o1 ) ) // by default only test rectangle intersection for collision check (speed)
 			{
-				if ( o.type == O_SHIP )
+				continue;
+			}
+			if ( o.type == O_SHIP )
+			{
+				if ( o1.type == O_BUDDY )
 				{
-					if ( o1.type == O_BUDDY )
+					buddy_saved++;
+					buddies--;
+					o1.exploded = true;
+					playSound( saved_sound );
+				}
+				// use more detailed check for ship only currently
+				else if ( collisionCheck( o, o1 ) )
+				{
+					if ( typeof( _TEST_ ) == "undefined" )
 					{
-						buddy_saved++;
-						buddies--;
+						playSound( x_ship_sound );
+						collision = true;
+						o.scale = 1;
+						o.exploded = true;
 						o1.exploded = true;
-						playSound( saved_sound );
-					}
-					// use more detailed check for ship only currently
-					else if ( collisionCheck( o, o1 ) )
-					{
-						if ( typeof( _TEST_ ) == "undefined" )
-						{
-							playSound( x_ship_sound );
-							collision = true;
-							o.scale = 1;
-							o.exploded = true;
-							o1.exploded = true;
-							resetLevel();
-							return;
-						}
-					}
-				}
-				else if ( o.type == O_MISSILE )
-				{
-					if ( !( o1.type == O_ROCKET || o1.type == O_DROP ||
-				           o1.type == O_RADAR  || o1.type == O_BADY ||
-				           o1.type == O_PHASER || o1.type == O_BUDDY ) ) continue;
-					if ( o1.type == O_BUDDY )
-					{
-						collision = true;
-						playSound( cry_sound );
 						resetLevel();
 						return;
 					}
-					o1.hits++;
-					o.exploded = true;
-					if ( o1.type == O_BADY && o1.hits < 3 + Math.floor( level / 3 ) )
-					{
-						continue;
-					}
-					if ( o1.type == O_RADAR && o1.hits < Math.floor( level / 3 ) )
-					{
-						continue;
-					}
-					o1.exploded = true;
-					if ( o1.type == O_DROP )
-					{
-						playSound( x_drop_sound );
-					}
-					else if ( o1.type == O_BADY )
-					{
-						playSound( bady_hit_sound );
-					}
-					else
-					{
-						playSound( x_missile_sound );
-					}
-					// move exploded object to end of list -
-					// makes explosion visible in case object was behind cloud
-					objects.push( objects.splice( j, 1 )[0] );
-					j--; // correct loop counter, because new object has now moved into index j
 				}
-				else if ( o.type == O_BOMB )
+			}
+			else if ( o.type == O_MISSILE )
+			{
+				if ( !( o1.type == O_ROCKET || o1.type == O_DROP ||
+			           o1.type == O_RADAR  || o1.type == O_BADY ||
+			           o1.type == O_PHASER || o1.type == O_BUDDY ) ) continue;
+				if ( o1.type == O_BUDDY )
 				{
-					if ( !( o1.type == O_RADAR  || o1.type == O_ROCKET ||
-				           o1.type == O_PHASER || o1.type == O_BUDDY ) ) continue;
-					if ( o1.type == O_BUDDY )
-					{
-						collision = true;
-						playSound( cry_sound );
-						resetLevel();
-						return;
-					}
-					if ( o1.type != O_PHASER && !o.inside( o1 ) ) // bomb must be inside radar (looks better)
-					{
-						continue;
-					}
-					o1.exploded = true;
-					o.exploded = true;
-					playSound( x_bomb_sound );
+					collision = true;
+					playSound( cry_sound );
+					resetLevel();
+					return;
 				}
+				o1.hits++;
+				o.exploded = true;
+				if ( o1.type == O_BADY && o1.hits < 3 + Math.floor( level / 3 ) )
+				{
+					continue;
+				}
+				if ( o1.type == O_RADAR && o1.hits < Math.floor( level / 3 ) )
+				{
+					continue;
+				}
+				o1.exploded = true;
+				if ( o1.type == O_DROP )
+				{
+					playSound( x_drop_sound );
+				}
+				else if ( o1.type == O_BADY )
+				{
+					playSound( bady_hit_sound );
+				}
+				else
+				{
+					playSound( x_missile_sound );
+				}
+				// move exploded object to end of list -
+				// makes explosion visible in case object was behind cloud
+				objects.push( objects.splice( j, 1 )[0] );
+				j--; // correct loop counter, because new object has now moved into index j
+			}
+			else if ( o.type == O_BOMB )
+			{
+				if ( !( o1.type == O_RADAR  || o1.type == O_ROCKET ||
+			           o1.type == O_PHASER || o1.type == O_BUDDY ) ) continue;
+				if ( o1.type == O_BUDDY )
+				{
+					collision = true;
+					playSound( cry_sound );
+					resetLevel();
+					return;
+				}
+				if ( o1.type != O_PHASER && !o.inside( o1 ) ) // bomb must be inside radar (looks better)
+				{
+					continue;
+				}
+				o1.exploded = true;
+				o.exploded = true;
+				playSound( x_bomb_sound );
 			}
 		}
 	}
@@ -2035,9 +2036,9 @@ function update()
 			spaceship.scale = 1;
 		}
 	}
-	if ( !paused )
+	var paused_by_key = paused && !collision && !completed;
+	if ( !paused_by_key )
 	{
-		updateObjects();
 		checkHits();
 	}
 	// handle color change
@@ -2175,12 +2176,23 @@ function update()
 		else
 		{
 			end_frame++;
-			fl_font( BoldItalicFont, Math.min( end_frame * 2 + 10, 80 ) );
+			var ft_size = Math.min( ( end_frame % 360 ) * 2 + 10, 80 );
+			fl_font( BoldItalicFont, ft_size );
 			fl_align( 'center' );
+			ctx.save();
+			var ft_rot = completed ? Math.min( ( end_frame % 360 ) - 45, 0 ) :
+			                         Math.max(  45 - ( end_frame % 360 ), 0 );
+			ctx.rotate( ( end_frame < 360 ? ft_rot : 0 ) * Math.PI / 180 );
 			drawShadowText( collision ? spaceship.exploded ? "*** OUCH!! ***" : "* OWN MAN HIT *" :
 				completed ?	buddies ? "Buddy not rescued!" : "Level complete!" : "*** PAUSED ***",
 				SCREEN_W / 2, 300, 'white', 'gray', 2 );
+			ctx.restore();
 		}
+	}
+	paused_by_key = paused && !collision && !completed;
+	if ( !paused_by_key || collision )
+	{
+		updateObjects();
 	}
 }
 
