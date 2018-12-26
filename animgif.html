@@ -25,8 +25,7 @@ the interface to FLTK.</p>
 <h2>Solution 1: External Widget</h2>
 
 <p>My first solution was an external Widget <code>Fl_Anim_GIF</code>, derived from the basic FLTK widget <code>Fl_Box</code>.
-This solution works well and can be found in the folder <code>extern</code> (It will probably be not
-developed further - see below).</p>
+This solution works well and can be found in the folder <code>extern</code>.</p>
 
 <p>But Kleine Bre's design approach to expand the <code>Fl_GIF_Image</code> class with animation capabilties
 seems advantegeous. On the other hand I did not want to have <code>Fl_GIF_Image</code> load animated files
@@ -42,7 +41,7 @@ stores its images directly in RGB-format without an intermittent <code>XPM</code
 
 <p>This solution can be found in the folder <code>intern</code>:</p>
 
-<p>The files there can be copied directly into the FLTK tree to replace the current GIF code.</p>
+<p>The files there can be copied directly into the FLTK source tree to replace the current GIF code.</p>
 
 <p><code>Fl_GIF_Image.cxx</code> contains the new GIF decoding algorithm using <code>GIFLIB</code>.</p>
 
@@ -51,7 +50,7 @@ stores its images directly in RGB-format without an intermittent <code>XPM</code
 
 <p><code>Fl_Anim_GIF_Image.H</code> declares the new image class <code>Fl_Anim_GIF_Image</code>.</p>
 
-<h2>Current status</h2>
+<h2>Current status/history</h2>
 
 <p>The current status is promising - it works well, but needs some more tests.
 I will stay with <code>Solution 2</code> for now and try to improve a few aspects, but
@@ -104,7 +103,9 @@ and to use it as tiles in <code>Fl_Tiled_Image</code></li>
 
 <p><em>Update 2016/12/03:</em></p>
 
-<p>Finished <em>all</em> tasks. Solution 2 is complete now.</p>
+<p>Finished <em>all</em> tasks. Solution 2 is complete now. Speed of rescaling has
+  been improved also vastly by using FLTK's (from version 1.4) image scaling
+  feature in combination with lazy (on-time) rescaling.</p>
 
 <p><em>Update 2017/08/26:</em></p>
 
@@ -117,10 +118,9 @@ and to use it as tiles in <code>Fl_Tiled_Image</code></li>
 
 <p>You can test the different solutions with the test programs in each folder.
 For the <code>internal</code> approach you must have <code>FLTK</code> as source distribution to replace
-the mentioned files. As said before <code>Solution 1</code> is not as advanced as <code>Solution 2</code>
-because I did not develop it further after starting with <code>Solution 2</code>.</p>
+the mentioned files. Both solutions now offer roughly the same functionality.</p>
 
-<p>There are some crude scripts in the root directory that help to compile the test
+<p>There are some simple scripts in the root directory that help to compile the test
 programs under Linux.
 (Don't use them unless you understand what you are doing...)</p>
 
@@ -134,14 +134,14 @@ the test program with <code>-t</code>.</p>
 <p>Look at the minimal example program <code>animgifimage-simple.cxx</code> to get a quick idea how to
 use the class.</p>
 
-<p>Have a look at the <a href="animgif/html/class_fl___anim___g_i_f___image.html">API</a>.</p>
+<p>Have a look at the <a href="https://wcout.github.io/animgif/html/class_fl___anim___g_i_f___image.html">API</a>.</p>
 
 <h2>Resume</h2>
 
 <p>I am not entirely convinced by the concept of <code>Solution 2</code> after all, but it is
 not bad either. On the one hand is <em>cute</em> to use it as a <code>Fl_Image</code>, on the other
 hand exactly therefore it seems inappropriate to put more and more playing
-functionality into it.</p>
+functionality into it. The external solution so perhaps seems more advantegous after all..</p>
 
 <p>Perhaps a generic <code>Fl_Animation</code> class (or whatever it may be called)
 would make sense - and <em>one</em> constructor for such a class could be an

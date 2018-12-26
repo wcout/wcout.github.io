@@ -14,8 +14,7 @@ the interface to FLTK.
 ## Solution 1: External Widget
 
 My first solution was an external Widget `Fl_Anim_GIF`, derived from the basic FLTK widget `Fl_Box`.
-This solution works well and can be found in the folder `extern` (It will probably be not
-developed further - see below).
+This solution works well and can be found in the folder `extern`.
 
 But Kleine Bre's design approach to expand the `Fl_GIF_Image` class with animation capabilties
 seems advantegeous. On the other hand I did not want to have `Fl_GIF_Image` load animated files
@@ -31,7 +30,7 @@ stores its images directly in RGB-format without an intermittent `XPM`.
 
 This solution can be found in the folder `intern`:
 
-The files there can be copied directly into the FLTK tree to replace the current GIF code.
+The files there can be copied directly into the FLTK source tree to replace the current GIF code.
 
 `Fl_GIF_Image.cxx` contains the new GIF decoding algorithm using `GIFLIB`.
 
@@ -40,7 +39,7 @@ The files there can be copied directly into the FLTK tree to replace the current
 
 `Fl_Anim_GIF_Image.H` declares the new image class `Fl_Anim_GIF_Image`.
 
-## Current status
+## Current status/history
 
 The current status is promising - it works well, but needs some more tests.
 I will stay with `Solution 2` for now and try to improve a few aspects, but
@@ -85,7 +84,9 @@ Issues remaining:
 
 *Update 2016/12/03:*
 
-  Finished *all* tasks. Solution 2 is complete now.
+  Finished *all* tasks. Solution 2 is complete now. Speed of rescaling has
+  been improved also vastly by using FLTK's (from version 1.4) image scaling
+  feature in combination with lazy (on-time) rescaling.
 
 *Update 2017/08/26:*
 
@@ -98,10 +99,9 @@ Issues remaining:
 
 You can test the different solutions with the test programs in each folder.
 For the `internal` approach you must have `FLTK` as source distribution to replace
-the mentioned files. As said before `Solution 1` is not as advanced as `Solution 2`
-because I did not develop it further after starting with `Solution 2`.
+the mentioned files. Both solutions now offer roughly the same functionality.
 
-There are some crude scripts in the root directory that help to compile the test
+There are some simple scripts in the root directory that help to compile the test
 programs under Linux.
 (Don't use them unless you understand what you are doing...)
 
@@ -115,14 +115,14 @@ Change the speed live using `+` and `-` keys.
 Look at the minimal example program `animgifimage-simple.cxx` to get a quick idea how to
 use the class.
 
-Have a look at the [API](animgif/html/class_fl___anim___g_i_f___image.html).
+Have a look at the [API](https://wcout.github.io/animgif/html/class_fl___anim___g_i_f___image.html).
 
 ## Resume
 
 I am not entirely convinced by the concept of `Solution 2` after all, but it is
 not bad either. On the one hand is _cute_ to use it as a `Fl_Image`, on the other
 hand exactly therefore it seems inappropriate to put more and more playing
-functionality into it.
+functionality into it. The external solution so perhaps seems more advantegous after all..
 
 Perhaps a generic `Fl_Animation` class (or whatever it may be called)
 would make sense - and _one_ constructor for such a class could be an
