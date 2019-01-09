@@ -28,8 +28,8 @@ the interface to FLTK.</p>
 This solution works well and can be found in the folder <code>extern</code><del> </p>
 
 <p>But Kleine Bre's design approach to expand the <code>Fl_GIF_Image</code> class with animation capabilties
-seems advantegeous. On the other hand I did not want to have <code>Fl_GIF_Image</code> load animated files
-whithout being asked to. There was also a technical reason not to extend <code>Fl_GIF_Image</code>:
+seems advantegeous. But I did not want to have <code>Fl_GIF_Image</code> load animated files
+whithout being asked to and there was also a technical reason not to extend <code>Fl_GIF_Image</code>:
 <code>Fl_GIF_Image</code> converts the images to <code>XPM</code> format and the transparent color is always put
 at the first entry of the color table. This leads to problems when other frames of the GIF
 have a different transparent color index.</p>
@@ -43,7 +43,7 @@ stores its images directly in RGB-format without an intermittent <code>XPM</code
 
 <p>The files there can be copied directly into the FLTK source tree to replace the current GIF code.</p>
 
-<p><code>Fl_GIF_Image.cxx</code> is basically the original FLTK widget with some minor neccessary
+<p><code>Fl_GIF_Image.cxx</code> is basically the original FLTK widget with some minor necessary
 changes (e.g. default constructor).</p>
 
 <p><code>Fl_Anim_GIF_Image.H</code>, <code>Fl_Anim_GIF_Image.cxx</code> is the implementation of the animated GIF
@@ -63,11 +63,11 @@ of GIF's - also with non-conforming and 'bad' ones.</p>
 <p>Both solutions offer roughly the same functionality:</p>
 
 <ul>
-<li><code>copy()</code>, <code>resize()</code> with fast image scaling with lazy (on-time) rescaling and usage
-of FLTK's (from version 1.4) image scaling feature</li>
+<li><code>copy()</code>, <code>resize()</code> with lazy (on-time) rescaling and usage of FLTK's
+(from version 1.4) fast image scaling feature</li>
 <li><code>color_average()</code> and <code>desaturate()</code> methods</li>
-<li>also it possible to run several instances of the <em>same</em> animation simultaneously
-and to use it as tiles in <code>Fl_Tiled_Image</code></li>
+<li>it also possible to run several instances of the <em>same</em> animation simultaneously
+and to use it as tiles in <code>Fl_Tiled_Image</code> (internal solution only).</li>
 <li>application controlled playback possible</li>
 </ul>
 
