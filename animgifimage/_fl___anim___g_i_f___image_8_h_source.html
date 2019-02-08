@@ -139,69 +139,69 @@ $(document).ready(function(){initNavTree('_fl___anim___g_i_f___image_8_h_source.
 <div class="line"><a name="l00065"></a><span class="lineno"><a class="line" href="class_fl___anim___g_i_f___image.html#a06a1f004b9ee511321d9c59a87f6e193a3c2b6e611b49d74afea82b8b5c500554">   65</a></span>&#160;    DontSetAsImage = 4,</div>
 <div class="line"><a name="l00074"></a><span class="lineno"><a class="line" href="class_fl___anim___g_i_f___image.html#a06a1f004b9ee511321d9c59a87f6e193a2fec8d10ffafe201cfac9268cd0a98fb">   74</a></span>&#160;    OptimizeMemory = 8,</div>
 <div class="line"><a name="l00079"></a><span class="lineno"><a class="line" href="class_fl___anim___g_i_f___image.html#a06a1f004b9ee511321d9c59a87f6e193a06e9824c6fcae47eee0545d28e9734e3">   79</a></span>&#160;    Log = 64,</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    Debug = 128</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;  };</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;  <a class="code" href="class_fl___anim___g_i_f___image.html">Fl_Anim_GIF_Image</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *name_, Fl_Widget *canvas_ = 0, <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> flags_ = 0);</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;  <a class="code" href="class_fl___anim___g_i_f___image.html">Fl_Anim_GIF_Image</a>();</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;  <span class="keyword">virtual</span> ~<a class="code" href="class_fl___anim___g_i_f___image.html">Fl_Anim_GIF_Image</a>();</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;  <span class="keywordtype">void</span> canvas(Fl_Widget *canvas_, <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> flags_ = 0);</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;  Fl_Widget *canvas() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;  <span class="keywordtype">int</span> canvas_w() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;  <span class="keywordtype">int</span> canvas_h() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> color_average(Fl_Color c_, <span class="keywordtype">float</span> i_);</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;  <span class="keyword">virtual</span> Fl_Image *copy(<span class="keywordtype">int</span> W_, <span class="keywordtype">int</span> H_);</div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;  <span class="keywordtype">int</span> debug() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> desaturate();</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> draw(<span class="keywordtype">int</span> x_, <span class="keywordtype">int</span> y_, <span class="keywordtype">int</span> w_, <span class="keywordtype">int</span> h_, <span class="keywordtype">int</span> cx_ = 0, <span class="keywordtype">int</span> cy_ = 0);</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;  <span class="keywordtype">double</span> delay(<span class="keywordtype">int</span> frame_) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;  <span class="keywordtype">void</span> delay(<span class="keywordtype">int</span> frame_, <span class="keywordtype">double</span> delay_);</div>
-<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;  <span class="keywordtype">int</span> frames() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;  <span class="keywordtype">void</span> frame(<span class="keywordtype">int</span> frame_);</div>
-<div class="line"><a name="l00150"></a><span class="lineno">  150</span>&#160;  <span class="keywordtype">int</span> frame() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;  Fl_Image *image() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;  Fl_Image *image(<span class="keywordtype">int</span> frame_) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;  <span class="keywordtype">bool</span> is_animated() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;  <span class="keywordtype">int</span> frame_count(<span class="keyword">const</span> <span class="keywordtype">char</span> *name_);</div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;  <span class="keywordtype">void</span> frame_uncache(<span class="keywordtype">bool</span> uncache_);</div>
-<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;  <span class="keywordtype">bool</span> frame_uncache() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00183"></a><span class="lineno">  183</span>&#160;  <span class="keywordtype">bool</span> load(<span class="keyword">const</span> <span class="keywordtype">char</span> *name_);</div>
-<div class="line"><a name="l00192"></a><span class="lineno"><a class="line" href="class_fl___anim___g_i_f___image.html#a62abbbef937bef28518a1434da3f5c3f">  192</a></span>&#160;  <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_fl___anim___g_i_f___image.html#a62abbbef937bef28518a1434da3f5c3f">loop</a>;</div>
-<div class="line"><a name="l00199"></a><span class="lineno"><a class="line" href="class_fl___anim___g_i_f___image.html#a516b7abfa19a1c8e36eb2194a6aa687a">  199</a></span>&#160;  <span class="keyword">static</span> <span class="keywordtype">double</span> <a class="code" href="class_fl___anim___g_i_f___image.html#a516b7abfa19a1c8e36eb2194a6aa687a">min_delay</a>;</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">char</span> *name() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;  <span class="keywordtype">bool</span> start();</div>
-<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;  <span class="keywordtype">bool</span> stop();</div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;  <a class="code" href="class_fl___anim___g_i_f___image.html">Fl_Anim_GIF_Image</a>&amp; resize(<span class="keywordtype">int</span> W_, <span class="keywordtype">int</span> H_);</div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;  <a class="code" href="class_fl___anim___g_i_f___image.html">Fl_Anim_GIF_Image</a>&amp; resize(<span class="keywordtype">double</span> scale_);</div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;  <span class="keywordtype">void</span> speed(<span class="keywordtype">double</span> speed_);</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;  <span class="keywordtype">double</span> speed() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> uncache();</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;  <span class="keywordtype">bool</span> valid() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;  <span class="keywordtype">int</span> frame_x(<span class="keywordtype">int</span> frame_) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;  <span class="keywordtype">int</span> frame_y(<span class="keywordtype">int</span> frame_) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;  <span class="keywordtype">int</span> frame_w(<span class="keywordtype">int</span> frame_) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00248"></a><span class="lineno">  248</span>&#160;  <span class="keywordtype">int</span> frame_h(<span class="keywordtype">int</span> frame_) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00249"></a><span class="lineno">  249</span>&#160;<span class="keyword">protected</span>:</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;  <span class="keywordtype">bool</span> next_frame();</div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;  <span class="keywordtype">void</span> clear_frames();</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;  <span class="keywordtype">void</span> set_frame(<span class="keywordtype">int</span> frame_);</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> cb_animate(<span class="keywordtype">void</span> *d_);</div>
-<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;  <span class="keywordtype">void</span> scale_frame();</div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;<span class="keyword">private</span>:</div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;  <span class="keywordtype">char</span> *_name;</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;  <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> _flags;</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;  Fl_Widget *_canvas;</div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;  <span class="keywordtype">bool</span> _uncache;</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;  <span class="keywordtype">bool</span> _valid;</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;  <span class="keywordtype">int</span> _frame; <span class="comment">// current frame</span></div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;  <span class="keywordtype">double</span> _speed;</div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;  FrameInfo *_fi;</div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;};</div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;</div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;<span class="preprocessor">#endif // Fl_Anim_Gif_Image_H</span></div>
-<div class="ttc" id="class_fl___anim___g_i_f___image_html_a516b7abfa19a1c8e36eb2194a6aa687a"><div class="ttname"><a href="class_fl___anim___g_i_f___image.html#a516b7abfa19a1c8e36eb2194a6aa687a">Fl_Anim_GIF_Image::min_delay</a></div><div class="ttdeci">static double min_delay</div><div class="ttdef"><b>Definition:</b> Fl_Anim_GIF_Image.H:199</div></div>
+<div class="line"><a name="l00084"></a><span class="lineno"><a class="line" href="class_fl___anim___g_i_f___image.html#a06a1f004b9ee511321d9c59a87f6e193af313070082277bc53e37bb991a3687f7">   84</a></span>&#160;    Debug = 128</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;  };</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;  <a class="code" href="class_fl___anim___g_i_f___image.html">Fl_Anim_GIF_Image</a>(<span class="keyword">const</span> <span class="keywordtype">char</span> *name_, Fl_Widget *canvas_ = 0, <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> flags_ = 0);</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;  <a class="code" href="class_fl___anim___g_i_f___image.html">Fl_Anim_GIF_Image</a>();</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;  <span class="keyword">virtual</span> ~<a class="code" href="class_fl___anim___g_i_f___image.html">Fl_Anim_GIF_Image</a>();</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;  <span class="keywordtype">void</span> canvas(Fl_Widget *canvas_, <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> flags_ = 0);</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;  Fl_Widget *canvas() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;  <span class="keywordtype">int</span> canvas_w() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;  <span class="keywordtype">int</span> canvas_h() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> color_average(Fl_Color c_, <span class="keywordtype">float</span> i_);</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;  <span class="keyword">virtual</span> Fl_Image *copy(<span class="keywordtype">int</span> W_, <span class="keywordtype">int</span> H_);</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;  <span class="keywordtype">int</span> debug() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> desaturate();</div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> draw(<span class="keywordtype">int</span> x_, <span class="keywordtype">int</span> y_, <span class="keywordtype">int</span> w_, <span class="keywordtype">int</span> h_, <span class="keywordtype">int</span> cx_ = 0, <span class="keywordtype">int</span> cy_ = 0);</div>
+<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;  <span class="keywordtype">double</span> delay(<span class="keywordtype">int</span> frame_) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00141"></a><span class="lineno">  141</span>&#160;  <span class="keywordtype">void</span> delay(<span class="keywordtype">int</span> frame_, <span class="keywordtype">double</span> delay_);</div>
+<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;  <span class="keywordtype">int</span> frames() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00149"></a><span class="lineno">  149</span>&#160;  <span class="keywordtype">void</span> frame(<span class="keywordtype">int</span> frame_);</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;  <span class="keywordtype">int</span> frame() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00158"></a><span class="lineno">  158</span>&#160;  Fl_Image *image() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;  Fl_Image *image(<span class="keywordtype">int</span> frame_) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;  <span class="keywordtype">bool</span> is_animated() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;  <span class="keywordtype">int</span> frame_count(<span class="keyword">const</span> <span class="keywordtype">char</span> *name_);</div>
+<div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;  <span class="keywordtype">void</span> frame_uncache(<span class="keywordtype">bool</span> uncache_);</div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;  <span class="keywordtype">bool</span> frame_uncache() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;  <span class="keywordtype">bool</span> load(<span class="keyword">const</span> <span class="keywordtype">char</span> *name_);</div>
+<div class="line"><a name="l00196"></a><span class="lineno"><a class="line" href="class_fl___anim___g_i_f___image.html#a62abbbef937bef28518a1434da3f5c3f">  196</a></span>&#160;  <span class="keyword">static</span> <span class="keywordtype">bool</span> <a class="code" href="class_fl___anim___g_i_f___image.html#a62abbbef937bef28518a1434da3f5c3f">loop</a>;</div>
+<div class="line"><a name="l00203"></a><span class="lineno"><a class="line" href="class_fl___anim___g_i_f___image.html#a516b7abfa19a1c8e36eb2194a6aa687a">  203</a></span>&#160;  <span class="keyword">static</span> <span class="keywordtype">double</span> <a class="code" href="class_fl___anim___g_i_f___image.html#a516b7abfa19a1c8e36eb2194a6aa687a">min_delay</a>;</div>
+<div class="line"><a name="l00207"></a><span class="lineno">  207</span>&#160;  <span class="keyword">const</span> <span class="keywordtype">char</span> *name() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;  <span class="keywordtype">bool</span> start();</div>
+<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;  <span class="keywordtype">bool</span> stop();</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;  <a class="code" href="class_fl___anim___g_i_f___image.html">Fl_Anim_GIF_Image</a>&amp; resize(<span class="keywordtype">int</span> W_, <span class="keywordtype">int</span> H_);</div>
+<div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;  <a class="code" href="class_fl___anim___g_i_f___image.html">Fl_Anim_GIF_Image</a>&amp; resize(<span class="keywordtype">double</span> scale_);</div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;  <span class="keywordtype">void</span> speed(<span class="keywordtype">double</span> speed_);</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;  <span class="keywordtype">double</span> speed() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00232"></a><span class="lineno">  232</span>&#160;  <span class="keyword">virtual</span> <span class="keywordtype">void</span> uncache();</div>
+<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;  <span class="keywordtype">bool</span> valid() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;  <span class="keywordtype">int</span> frame_x(<span class="keywordtype">int</span> frame_) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;  <span class="keywordtype">int</span> frame_y(<span class="keywordtype">int</span> frame_) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;  <span class="keywordtype">int</span> frame_w(<span class="keywordtype">int</span> frame_) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;  <span class="keywordtype">int</span> frame_h(<span class="keywordtype">int</span> frame_) <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;<span class="keyword">protected</span>:</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;  <span class="keywordtype">bool</span> next_frame();</div>
+<div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;  <span class="keywordtype">void</span> clear_frames();</div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;  <span class="keywordtype">void</span> set_frame(<span class="keywordtype">int</span> frame_);</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;  <span class="keyword">static</span> <span class="keywordtype">void</span> cb_animate(<span class="keywordtype">void</span> *d_);</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;  <span class="keywordtype">void</span> scale_frame();</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;<span class="keyword">private</span>:</div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;  <span class="keywordtype">char</span> *_name;</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;  <span class="keywordtype">unsigned</span> <span class="keywordtype">short</span> _flags;</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;  Fl_Widget *_canvas;</div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;  <span class="keywordtype">bool</span> _uncache;</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;  <span class="keywordtype">bool</span> _valid;</div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;  <span class="keywordtype">int</span> _frame; <span class="comment">// current frame</span></div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;  <span class="keywordtype">double</span> _speed;</div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;  FrameInfo *_fi;</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;};</div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;</div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;<span class="preprocessor">#endif // Fl_Anim_Gif_Image_H</span></div>
+<div class="ttc" id="class_fl___anim___g_i_f___image_html_a516b7abfa19a1c8e36eb2194a6aa687a"><div class="ttname"><a href="class_fl___anim___g_i_f___image.html#a516b7abfa19a1c8e36eb2194a6aa687a">Fl_Anim_GIF_Image::min_delay</a></div><div class="ttdeci">static double min_delay</div><div class="ttdef"><b>Definition:</b> Fl_Anim_GIF_Image.H:203</div></div>
 <div class="ttc" id="class_fl___anim___g_i_f___image_html_a06a1f004b9ee511321d9c59a87f6e193"><div class="ttname"><a href="class_fl___anim___g_i_f___image.html#a06a1f004b9ee511321d9c59a87f6e193">Fl_Anim_GIF_Image::Flags</a></div><div class="ttdeci">Flags</div><div class="ttdef"><b>Definition:</b> Fl_Anim_GIF_Image.H:46</div></div>
-<div class="ttc" id="class_fl___anim___g_i_f___image_html_a62abbbef937bef28518a1434da3f5c3f"><div class="ttname"><a href="class_fl___anim___g_i_f___image.html#a62abbbef937bef28518a1434da3f5c3f">Fl_Anim_GIF_Image::loop</a></div><div class="ttdeci">static bool loop</div><div class="ttdef"><b>Definition:</b> Fl_Anim_GIF_Image.H:192</div></div>
+<div class="ttc" id="class_fl___anim___g_i_f___image_html_a62abbbef937bef28518a1434da3f5c3f"><div class="ttname"><a href="class_fl___anim___g_i_f___image.html#a62abbbef937bef28518a1434da3f5c3f">Fl_Anim_GIF_Image::loop</a></div><div class="ttdeci">static bool loop</div><div class="ttdef"><b>Definition:</b> Fl_Anim_GIF_Image.H:196</div></div>
 <div class="ttc" id="class_fl___g_i_f___image_html"><div class="ttname"><a href="class_fl___g_i_f___image.html">Fl_GIF_Image</a></div><div class="ttdef"><b>Definition:</b> Fl_GIF_Image.H:31</div></div>
 <div class="ttc" id="class_fl___anim___g_i_f___image_html"><div class="ttname"><a href="class_fl___anim___g_i_f___image.html">Fl_Anim_GIF_Image</a></div><div class="ttdef"><b>Definition:</b> Fl_Anim_GIF_Image.H:36</div></div>
 </div><!-- fragment --></div><!-- contents -->
@@ -210,7 +210,7 @@ $(document).ready(function(){initNavTree('_fl___anim___g_i_f___image_8_h_source.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="dir_950f51950c2cabe10ebd6b853ac42963.html">FL</a></li><li class="navelem"><b>Fl_Anim_GIF_Image.H</b></li>
-    <li class="footer">Generated on Sat Jan 19 2019 17:58:11 for Fl_Anim_GIF_Image by
+    <li class="footer">Generated on Fri Feb 8 2019 20:47:18 for Fl_Anim_GIF_Image by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.6 </li>
   </ul>
