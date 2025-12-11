@@ -62,3 +62,13 @@ A minimal implementation of the "5 in a row" game using FLTK.
 ![Screenshot of FLTK Gomoku](screenshots/fltk-gomoku.png "Screenshot of FLTK Gomoku")
 
 [GitHub source](https://github.com/wcout/fltk-gomoku)
+
+---
+
+[FLTK Schnapsen](schnapsen.html)
+
+An implementation of the popular (Austrian) card game "Schnapsen" using FLTK.
+
+![Screenshot of FLTK Schnapsen](screenshots/fltk-schnapsen.png "Screenshot of FLTK Schnapsen")
+
+[GitHub source](https://github.com/wcout/fltk-schnapsen)
