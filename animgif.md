@@ -1,5 +1,19 @@
 # FLTK GIF Animation
 
+---
+
+## Current status as of 2023/02/19
+
+**Solution 2** (new FLTK `Fl_Anim_GIF_Image` class) has been incorporated into the official FLTK 1.4 source tree as of `2023/01/21 #2ddfd9d`.
+
+**This project will not be developed further.**
+
+It can still be useful as reference how to build an 'external' Widget as in Solution 1.
+
+---
+
+## Original Notes
+
 [FLTK](http://www.fltk.org/) does not support loading/displaying animated GIF files
 currently. There has been already some third party work on this subject here:
 
