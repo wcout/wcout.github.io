@@ -14,8 +14,16 @@ This program tries to offer a decent opponent, though in v1.0 it still has
 plenty of room for improvemnet. The goal is to make it as good as any experienced
 human player.
 
-It features a resizable screen (fullscreen possible), configurable card decks (with SVG
-cards) and table background (image), a score board and offers a English or German interface.
+Features:
+
+- Intuitive user interface
+- Resizable screen (fullscreen possible)
+- Configurable card decks (with SVG cards)
+- Configurable table background (image)
+- Score board showing last games
+- English or German language
+- Sounds
+- Card animations
 
 [GitHub tarball download](https://github.com/wcout/fltk-schnapsen/archive/master.zip)
 
